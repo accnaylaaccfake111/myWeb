@@ -1,0 +1,76 @@
+/* Custom styles for VideoPreview component */
+
+/* Custom slider styles */
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.slider::-webkit-slider-track {
+  background: #374151;
+  height: 4px;
+  border-radius: 2px;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  background: #ef4444;
+  cursor: pointer;
+  border: none;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  background: #dc2626;
+}
+
+.slider::-moz-range-track {
+  background: #374151;
+  height: 4px;
+  border-radius: 2px;
+  border: none;
+}
+
+.slider::-moz-range-thumb {
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  background: #ef4444;
+  cursor: pointer;
+  border: none;
+}
+
+.slider::-moz-range-thumb:hover {
+  background: #dc2626;
+}
+
+/* Hide controls on mobile when not interacting */
+@media (max-width: 768px) {
+  .video-controls {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .video-container:hover .video-controls,
+  .video-container:focus-within .video-controls {
+    opacity: 1;
+  }
+}
+
+/* Custom focus styles */
+.slider:focus {
+  outline: none;
+}
+
+.slider:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.5);
+}
+
+.slider:focus::-moz-range-thumb {
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.5);
+}

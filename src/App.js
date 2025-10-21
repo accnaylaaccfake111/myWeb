@@ -1,0 +1,238 @@
+import React, { useEffect, useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Header from "./components/Header";
+import Sidebar from "./components/SideBar";
+import ScrollToTop from "./components/ScrollToTop";
+import Home from "./pages/Home";
+import MyProjects from "./pages/MyProjects";
+import Help from "./pages/Help";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import DanceSimulation from "./pages/DanceSimulation";
+import DanceScoring from "./pages/DanceScoring";
+import DancingHandle from "./pages/DancingHandle";
+import FaceSwap from "./pages/FaceSwap";
+import LyricsComposition from "./pages/LyricsComposition";
+import Karaoke from "./pages/Karaoke";
+import CulturalHistory from "./pages/CulturalHistory";
+import { storage } from "./utils/storage";
+import DancePreview from "./pages/DancePreview";
+
+function App() {
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [user, setUser] = useState(null);
+    const [showSidebar, setShowSidebar] = useState(false);
+
+    const handleLogin = (userData) => {
+        setIsLoggedIn(storage.getAccessToken() !== null);
+        setUser(storage.getUser());
+    };
+
+    const handleLogout = () => {
+        setIsLoggedIn(false);
+        setUser(null);
+        storage.clearAuthData();
+    };
+
+    useEffect(() => {
+        setIsLoggedIn(storage.getAccessToken() !== null);
+        setUser(storage.getUser());
+    }, []);
+
+    return (
+        <Router>
+            <ScrollToTop />
+            <div className="flex flex-col min-h-screen bg-gray-50">
+                <Header
+                    isLoggedIn={isLoggedIn}
+                    user={user}
+                    onLogout={handleLogout}
+                    toggleSidebar={() => setShowSidebar(!showSidebar)}
+                />
+
+                <div className="flex flex-1">
+                    <Sidebar showSidebar={showSidebar} />
+
+                    <div className="flex-1 p-6">
+                        <Routes>
+                            <Route path="/" element={<Home />} />
+                            <Route
+                                path="/cultural-history"
+                                element={<CulturalHistory />}
+                            />
+                            <Route
+                                path="/my-projects"
+                                element={<MyProjects isLoggedIn={isLoggedIn} />}
+                            />
+                            <Route path="/help" element={<Help />} />
+                            <Route
+                                path="/login"
+                                element={<Login onLogin={handleLogin} />}
+                            />
+                            <Route path="/register" element={<Register />} />
+                            {/* Các route mới cho chức năng múa */}
+                            <Route
+                                path="/dancing"
+                                element={
+                                    <DancingHandle isLoggedIn={isLoggedIn} />
+                                }
+                            />
+                            <Route
+                                path="/dancing-scoring"
+                                element={
+                                    <DanceScoring isLoggedIn={isLoggedIn} />
+                                }
+                            />
+                            <Route
+                                path="/dancing-simulation"
+                                element={
+                                    <DanceSimulation isLoggedIn={isLoggedIn} />
+                                }
+                            />
+                            <Route
+                                path="/face-swap"
+                                element={<FaceSwap isLoggedIn={isLoggedIn} />}
+                            />
+                            <Route
+                                path="/lyrics-composition"
+                                element={
+                                    <LyricsComposition
+                                        isLoggedIn={isLoggedIn}
+                                    />
+                                }
+                            />
+                            <Route
+                                path="/karaoke"
+                                element={<Karaoke isLoggedIn={isLoggedIn} />}
+                            />
+                            <Route
+                                path="/dancing-preview"
+                                element={<DancePreview />}
+                            />
+                        </Routes>
+                    </div>
+                </div>
+            </div>
+        </Router>
+    );
+}
+
+export default App;
+
+// import React, { useState, useEffect } from "react";
+// import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+// import Header from "./components/Header";
+// import Sidebar from "./components/SideBar";
+// import ScrollToTop from "./components/ScrollToTop";
+// import Home from "./pages/Home";
+// import MyProjects from "./pages/MyProjects";
+// import Help from "./pages/Help";
+// import Login from "./pages/Login";
+// import Register from "./pages/Register";
+// import DanceSimulation from "./pages/DanceSimulation";
+// import FaceSwap from "./pages/FaceSwap";
+// import LyricsComposition from "./pages/LyricsComposition";
+// import Karaoke from "./pages/Karaoke";
+// import CulturalHistory from "./pages/CulturalHistory";
+// import { storage } from "./utils/storage";
+// import { authService } from "./services/authService";
+
+// function App() {
+//   const [isLoggedIn, setIsLoggedIn] = useState(false);
+//   const [user, setUser] = useState(null);
+//   const [showSidebar, setShowSidebar] = useState(false);
+//   const [isLoading, setIsLoading] = useState(true);
+
+//   // Khôi phục trạng thái đăng nhập khi app khởi động
+//   useEffect(() => {
+//     const initializeAuth = async () => {
+//       if (storage.isAuthenticated()) {
+//         const savedUser = storage.getUser();
+//         if (savedUser) {
+//           setIsLoggedIn(true);
+//           setUser(savedUser);
+//         }
+//       }
+//       setIsLoading(false);
+//     };
+
+//     initializeAuth();
+//   }, []);
+
+//   const handleLogin = (userData) => {
+//     setIsLoggedIn(true);
+//     setUser(userData);
+//   };
+
+//   const handleLogout = async () => {
+//     try {
+//       // Gọi API logout
+//       await authService.logout();
+//     } catch (error) {
+//       console.error("Logout error:", error);
+//     } finally {
+//       // Xóa dữ liệu local
+//       storage.clearAuthData();
+//       setIsLoggedIn(false);
+//       setUser(null);
+//     }
+//   };
+
+//   if (isLoading) {
+//     return (
+//       <div className="min-h-screen flex items-center justify-center">
+//         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <Router>
+//       <ScrollToTop />
+//       <div className="flex flex-col min-h-screen bg-gray-50">
+//         <Header
+//           isLoggedIn={isLoggedIn}
+//           user={user}
+//           onLogout={handleLogout}
+//           toggleSidebar={() => setShowSidebar(!showSidebar)}
+//         />
+
+//         <div className="flex flex-1">
+//           <Sidebar showSidebar={showSidebar} />
+
+//           <div className="flex-1 p-6">
+//             <Routes>
+//               <Route path="/" element={<Home />} />
+//               <Route path="/cultural-history" element={<CulturalHistory />} />
+//               <Route
+//                 path="/my-projects"
+//                 element={<MyProjects isLoggedIn={isLoggedIn} />}
+//               />
+//               <Route path="/help" element={<Help />} />
+//               <Route path="/login" element={<Login onLogin={handleLogin} />} />
+//               <Route
+//                 path="/register"
+//                 element={<Register onLogin={handleLogin} />}
+//               />
+//               <Route path="/dancing-simulation" element={<DanceSimulation />} />
+//               <Route
+//                 path="/face-swap"
+//                 element={<FaceSwap isLoggedIn={isLoggedIn} />}
+//               />
+//               <Route
+//                 path="/lyrics-composition"
+//                 element={<LyricsComposition />}
+//               />
+//               <Route
+//                 path="/karaoke"
+//                 element={<Karaoke isLoggedIn={isLoggedIn} />}
+//               />
+//             </Routes>
+//           </div>
+//         </div>
+//       </div>
+//     </Router>
+//   );
+// }
+
+// export default App;
