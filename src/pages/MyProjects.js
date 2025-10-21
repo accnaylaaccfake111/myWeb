@@ -6,6 +6,35 @@ import {
     fetchFaceSwapProjects,
     fetchSheetMusicProjects,
 } from "../services/getDataApi";
+import {
+    Activity,
+    Camera,
+    CameraIcon,
+    Check,
+    Clock,
+    File,
+    Music,
+    Notebook,
+    NotebookPenIcon,
+    Shirt,
+    Smile,
+    Sparkles,
+    Target,
+    Video,
+    Eye,
+    Trash2,
+    Calendar,
+    X,
+    AlertTriangle,
+    RefreshCw,
+    FolderOpen,
+    LogIn,
+    Plus,
+    Palette,
+    Zap,
+    User,
+    Film,
+} from "lucide-react";
 
 const API_BASE_URL = process.env.REACT_APP_BE_API || "";
 
@@ -46,10 +75,10 @@ const MyProjects = ({ isLoggedIn }) => {
     };
 
     const projectTypeIcons = {
-        FACE_SWAP: "😊",
-        DANCE_SIMULATION: "💃",
-        CLOTH_SWAP: "👕",
-        SHEET_MUSIC: "🎵",
+        FACE_SWAP: <Smile className="w-5 h-5" />,
+        DANCE_SIMULATION: <Activity className="w-5 h-5" />,
+        CLOTH_SWAP: <Shirt className="w-5 h-5" />,
+        SHEET_MUSIC: <Music className="w-5 h-5" />,
     };
 
     const projectTypes = Object.keys(projectTypeMap);
@@ -220,25 +249,9 @@ const MyProjects = ({ isLoggedIn }) => {
     // Fetch chi tiết dance simulation
     const fetchDanceSimulationDetail = async (id) => {
         try {
-            const token = storage.getAccessToken();
-            const response = await fetch(`${API_BASE_URL}/api/video-3d/${id}`, {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: "application/json",
-                    "ngrok-skip-browser-warning": true,
-                },
-            });
-
-            const result = await response.json();
-            console.log("Dance simulation detail:", result);
-            if (result.success) {
-                return result.data;
-            } else {
-                throw new Error(
-                    result.message || "Lỗi khi tải chi tiết mô phỏng điệu múa",
-                );
-            }
+            const response = danceSimulationProjects.find((x) => x.id === id);
+            console.log(response);
+            return response;
         } catch (err) {
             console.error("Error fetching dance simulation detail:", err);
             throw err;
@@ -482,8 +495,9 @@ const MyProjects = ({ isLoggedIn }) => {
 
                 {/* Additional info based on project type */}
                 {isClothSwap && project.timeProcessing && (
-                    <p className="text-xs text-gray-500 mb-2">
-                        ⏱️ Thời gian xử lý:{" "}
+                    <p className="text-xs text-gray-500 mb-2 flex items-center">
+                        <Clock className="w-3 h-3 mr-1" />
+                        Thời gian xử lý:{" "}
                         {Math.round(project.timeProcessing / 1000)}s
                     </p>
                 )}
@@ -492,17 +506,20 @@ const MyProjects = ({ isLoggedIn }) => {
                     <div className="text-xs text-gray-500 mb-2 space-y-1">
                         {project.theme && (
                             <div className="flex items-center">
-                                🎨 Chủ đề: {project.theme}
+                                <Palette className="w-3 h-3 mr-1" />
+                                Chủ đề: {project.theme}
                             </div>
                         )}
                         {project.mood && (
                             <div className="flex items-center">
-                                😊 Tâm trạng: {project.mood}
+                                <Smile className="w-3 h-3 mr-1" />
+                                Tâm trạng: {project.mood}
                             </div>
                         )}
                         {project.duration && (
                             <div className="flex items-center">
-                                ⏱️ Thời lượng: {project.duration}s
+                                <Clock className="w-3 h-3 mr-1" />
+                                Thời lượng: {project.duration}s
                             </div>
                         )}
                     </div>
@@ -512,13 +529,15 @@ const MyProjects = ({ isLoggedIn }) => {
                     <div className="text-xs text-gray-500 mb-2 space-y-1">
                         {project.aiModelVersion && (
                             <div className="flex items-center">
-                                🤖 Model: {project.aiModelVersion}
+                                <Zap className="w-3 h-3 mr-1" />
+                                Model: {project.aiModelVersion}
                             </div>
                         )}
                         {(project.processingTimeMs ||
                             project.processingTime) && (
                             <div className="flex items-center">
-                                ⏱️ Thời gian xử lý:{" "}
+                                <Clock className="w-3 h-3 mr-1" />
+                                Thời gian xử lý:{" "}
                                 {Math.round(
                                     (project.processingTimeMs ||
                                         project.processingTime) / 1000,
@@ -528,7 +547,8 @@ const MyProjects = ({ isLoggedIn }) => {
                         )}
                         {project.swapType && (
                             <div className="flex items-center">
-                                🔄 Loại ghép: {project.swapType}
+                                <RefreshCw className="w-3 h-3 mr-1" />
+                                Loại ghép: {project.swapType}
                             </div>
                         )}
                     </div>
@@ -538,12 +558,14 @@ const MyProjects = ({ isLoggedIn }) => {
                     <div className="text-xs text-gray-500 mb-2 space-y-1">
                         {project.type && (
                             <div className="flex items-center">
-                                🎯 Loại: {project.type}
+                                <Target className="w-3 h-3 mr-1" />
+                                Loại: {project.type}
                             </div>
                         )}
                         {project.videout1 && (
                             <div className="flex items-center">
-                                🎥 Video: {project.videout1}
+                                <Film className="w-3 h-3 mr-1" />
+                                Video: {project.videout1}
                             </div>
                         )}
                     </div>
@@ -551,20 +573,7 @@ const MyProjects = ({ isLoggedIn }) => {
 
                 <div className="flex justify-between items-center pt-3 border-t border-gray-100">
                     <span className="text-sm text-gray-500 flex items-center">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 mr-1"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                            />
-                        </svg>
+                        <Calendar className="h-4 w-4 mr-1" />
                         {formatDate(project.createdAt || project.createAt)}
                     </span>
                     <div className="flex space-x-2">
@@ -581,19 +590,7 @@ const MyProjects = ({ isLoggedIn }) => {
                             className="text-blue-500 hover:text-blue-600 transition-colors p-2 hover:bg-blue-50 rounded-lg"
                             title="Xem chi tiết"
                         >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-4 w-4"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                            >
-                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                                <path
-                                    fillRule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 100-12 6 6 0 000 12z"
-                                    clipRule="evenodd"
-                                />
-                            </svg>
+                            <Eye className="h-4 w-4" />
                         </button>
                         <button
                             onClick={() =>
@@ -607,18 +604,7 @@ const MyProjects = ({ isLoggedIn }) => {
                             projectToDelete?.id === project.id ? (
                                 <div className="h-4 w-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin"></div>
                             ) : (
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-4 w-4"
-                                    viewBox="0 0 20 20"
-                                    fill="currentColor"
-                                >
-                                    <path
-                                        fillRule="evenodd"
-                                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                        clipRule="evenodd"
-                                    />
-                                </svg>
+                                <Trash2 className="h-4 w-4" />
                             )}
                         </button>
                     </div>
@@ -799,9 +785,7 @@ const MyProjects = ({ isLoggedIn }) => {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div className="flex items-center space-x-3">
                         <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                            <span className="text-white text-sm sm:text-lg">
-                                😊
-                            </span>
+                            <Smile className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                         </div>
                         <div className="min-w-0 flex-1">
                             <h3 className="font-bold text-gray-800 text-base sm:text-lg truncate">
@@ -816,8 +800,9 @@ const MyProjects = ({ isLoggedIn }) => {
                                     {getStatusText(project.status)}
                                 </span>
                                 {project.aiModelVersion && (
-                                    <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs truncate">
-                                        🤖 {project.aiModelVersion}
+                                    <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs truncate flex items-center">
+                                        <Zap className="w-3 h-3 mr-1" />
+                                        {project.aiModelVersion}
                                     </span>
                                 )}
                             </div>
@@ -837,7 +822,7 @@ const MyProjects = ({ isLoggedIn }) => {
                 <div className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm">
                     <div className="flex items-center space-x-2">
                         <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <span className="text-blue-600 text-sm">⏱️</span>
+                            <Clock className="w-4 h-4 text-blue-600" />
                         </div>
                         <div className="min-w-0 flex-1">
                             <div className="text-xs text-gray-500">
@@ -861,7 +846,7 @@ const MyProjects = ({ isLoggedIn }) => {
                 <div className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm">
                     <div className="flex items-center space-x-2">
                         <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <span className="text-green-600 text-sm">🔄</span>
+                            <RefreshCw className="w-4 h-4 text-green-600" />
                         </div>
                         <div className="min-w-0 flex-1">
                             <div className="text-xs text-gray-500">
@@ -878,9 +863,7 @@ const MyProjects = ({ isLoggedIn }) => {
                     <div className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm">
                         <div className="flex items-center space-x-2">
                             <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <span className="text-emerald-600 text-sm">
-                                    ✅
-                                </span>
+                                <Check className="w-4 h-4 text-emerald-600" />
                             </div>
                             <div className="min-w-0 flex-1">
                                 <div className="text-xs text-gray-500">
@@ -898,7 +881,7 @@ const MyProjects = ({ isLoggedIn }) => {
                     <div className="bg-white rounded-lg p-3 border border-red-100 shadow-sm sm:col-span-2 lg:col-span-2">
                         <div className="flex items-center space-x-2">
                             <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <span className="text-red-600 text-sm">⚠️</span>
+                                <AlertTriangle className="w-4 h-4 text-red-600" />
                             </div>
                             <div className="min-w-0 flex-1">
                                 <div className="text-xs text-gray-500">
@@ -919,7 +902,7 @@ const MyProjects = ({ isLoggedIn }) => {
                 <div className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300">
                     <div className="bg-gradient-to-r from-purple-500 to-purple-600 p-3">
                         <h4 className="font-semibold text-white text-sm flex items-center">
-                            <span className="mr-2">👤</span>
+                            <User className="w-4 h-4 mr-2" />
                             Ảnh khuôn mặt nguồn
                             {project.facesUrl &&
                                 project.facesUrl?.length > 0 && (
@@ -950,9 +933,7 @@ const MyProjects = ({ isLoggedIn }) => {
                             </div>
                         ) : (
                             <div className="w-full aspect-video bg-gray-100 rounded-lg flex flex-col items-center justify-center border-2 border-dashed border-gray-300">
-                                <span className="text-gray-400 text-2xl mb-2">
-                                    📷
-                                </span>
+                                <CameraIcon className="w-8 h-8 text-gray-400 mb-2" />
                                 <span className="text-gray-500 text-sm text-center px-2">
                                     Không có ảnh
                                 </span>
@@ -965,7 +946,7 @@ const MyProjects = ({ isLoggedIn }) => {
                 <div className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300">
                     <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-3">
                         <h4 className="font-semibold text-white text-sm flex items-center">
-                            <span className="mr-2">🎬</span>
+                            <Film className="w-4 h-4 mr-2" />
                             Video đích
                         </h4>
                     </div>
@@ -986,9 +967,7 @@ const MyProjects = ({ isLoggedIn }) => {
                             </div>
                         ) : (
                             <div className="w-full aspect-video bg-gray-100 rounded-lg flex flex-col items-center justify-center border-2 border-dashed border-gray-300">
-                                <span className="text-gray-400 text-2xl mb-2">
-                                    🎥
-                                </span>
+                                <Camera className="w-8 h-8 text-gray-400 mb-2" />
                                 <span className="text-gray-500 text-sm text-center px-2">
                                     Không có video
                                 </span>
@@ -1001,7 +980,7 @@ const MyProjects = ({ isLoggedIn }) => {
                 <div className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300">
                     <div className="bg-gradient-to-r from-green-500 to-green-600 p-3">
                         <h4 className="font-semibold text-white text-sm flex items-center">
-                            <span className="mr-2">✨</span>
+                            <Sparkles className="w-4 h-4 mr-2" />
                             Kết quả ghép mặt
                         </h4>
                     </div>
@@ -1032,9 +1011,6 @@ const MyProjects = ({ isLoggedIn }) => {
                             </div>
                         ) : (
                             <div className="w-full aspect-video bg-gray-100 rounded-lg flex flex-col items-center justify-center border-2 border-dashed border-gray-300">
-                                <span className="text-gray-400 text-2xl mb-2">
-                                    ⏳
-                                </span>
                                 <span className="text-gray-500 text-sm text-center px-2">
                                     Chưa có kết quả
                                 </span>
@@ -1054,7 +1030,7 @@ const MyProjects = ({ isLoggedIn }) => {
                 <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
                     <div className="bg-gradient-to-r from-gray-500 to-gray-600 p-3">
                         <h4 className="font-semibold text-white text-sm flex items-center">
-                            <span className="mr-2">📋</span>
+                            <NotebookPenIcon className="w-4 h-4 mr-2" />
                             Thông tin bổ sung
                         </h4>
                     </div>
@@ -1081,11 +1057,6 @@ const MyProjects = ({ isLoggedIn }) => {
             <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-xl p-4 border border-red-100">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-red-500 to-orange-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                            <span className="text-white text-sm sm:text-lg">
-                                💃
-                            </span>
-                        </div>
                         <div className="min-w-0 flex-1">
                             <h3 className="font-bold text-gray-800 text-base sm:text-lg truncate">
                                 {project.title || "Mô Phỏng Điệu Múa"}
@@ -1099,8 +1070,9 @@ const MyProjects = ({ isLoggedIn }) => {
                                     {getStatusText(project.status)}
                                 </span>
                                 {project.type && (
-                                    <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs truncate">
-                                        🎯 {project.type}
+                                    <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs truncate flex items-center">
+                                        <Target className="w-3 h-3 mr-1" />
+                                        {project.type}
                                     </span>
                                 )}
                             </div>
@@ -1120,7 +1092,7 @@ const MyProjects = ({ isLoggedIn }) => {
                 <div className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm">
                     <div className="flex items-center space-x-2">
                         <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <span className="text-red-600 text-sm">🎯</span>
+                            <Target className="w-4 h-4 text-red-600" />
                         </div>
                         <div className="min-w-0 flex-1">
                             <div className="text-xs text-gray-500">Loại</div>
@@ -1134,7 +1106,7 @@ const MyProjects = ({ isLoggedIn }) => {
                 <div className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm">
                     <div className="flex items-center space-x-2">
                         <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <span className="text-blue-600 text-sm">⏱️</span>
+                            <Clock className="w-4 h-4 text-blue-600" />
                         </div>
                         <div className="min-w-0 flex-1">
                             <div className="text-xs text-gray-500">
@@ -1155,9 +1127,7 @@ const MyProjects = ({ isLoggedIn }) => {
                     <div className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm">
                         <div className="flex items-center space-x-2">
                             <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <span className="text-emerald-600 text-sm">
-                                    ✅
-                                </span>
+                                <Check className="w-4 h-4 text-emerald-600" />
                             </div>
                             <div className="min-w-0 flex-1">
                                 <div className="text-xs text-gray-500">
@@ -1178,7 +1148,7 @@ const MyProjects = ({ isLoggedIn }) => {
                 <div className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300">
                     <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-3">
                         <h4 className="font-semibold text-white text-sm flex items-center">
-                            <span className="mr-2">🎬</span>
+                            <Video className="w-4 h-4 mr-2" />
                             Video đầu vào
                         </h4>
                     </div>
@@ -1199,9 +1169,7 @@ const MyProjects = ({ isLoggedIn }) => {
                             </div>
                         ) : (
                             <div className="w-full aspect-video bg-gray-100 rounded-lg flex flex-col items-center justify-center border-2 border-dashed border-gray-300">
-                                <span className="text-gray-400 text-2xl mb-2">
-                                    🎥
-                                </span>
+                                <Film className="w-8 h-8 text-gray-400 mb-2" />
                                 <span className="text-gray-500 text-sm text-center px-2">
                                     Không có video đầu vào
                                 </span>
@@ -1214,7 +1182,7 @@ const MyProjects = ({ isLoggedIn }) => {
                 <div className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300">
                     <div className="bg-gradient-to-r from-green-500 to-green-600 p-3">
                         <h4 className="font-semibold text-white text-sm flex items-center">
-                            <span className="mr-2">✨</span>
+                            <Sparkles className="w-4 h-4 mr-2" />
                             Kết quả mô phỏng
                         </h4>
                     </div>
@@ -1245,9 +1213,6 @@ const MyProjects = ({ isLoggedIn }) => {
                             </div>
                         ) : (
                             <div className="w-full aspect-video bg-gray-100 rounded-lg flex flex-col items-center justify-center border-2 border-dashed border-gray-300">
-                                <span className="text-gray-400 text-2xl mb-2">
-                                    ⏳
-                                </span>
                                 <span className="text-gray-500 text-sm text-center px-2">
                                     Chưa có kết quả
                                 </span>
@@ -1267,7 +1232,7 @@ const MyProjects = ({ isLoggedIn }) => {
                 <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
                     <div className="bg-gradient-to-r from-gray-500 to-gray-600 p-3">
                         <h4 className="font-semibold text-white text-sm flex items-center">
-                            <span className="mr-2">📋</span>
+                            <Notebook className="w-4 h-4 mr-2" />
                             Thông tin bổ sung
                         </h4>
                     </div>
@@ -1292,7 +1257,7 @@ const MyProjects = ({ isLoggedIn }) => {
             <div className="max-w-2xl mx-auto text-center py-12 fade-in">
                 <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
                     <div className="text-5xl mb-4 text-red-400 animate-bounce">
-                        📁
+                        <FolderOpen className="w-12 h-12 mx-auto" />
                     </div>
                     <h2 className="text-3xl md:text-4xl font-bold text-red-700 mb-4">
                         Vui lòng đăng nhập
@@ -1303,8 +1268,9 @@ const MyProjects = ({ isLoggedIn }) => {
                     <Link
                         to="/login"
                         state={{ from: "/my-projects" }}
-                        className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors duration-200 font-semibold"
+                        className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors duration-200 font-semibold flex items-center justify-center w-fit mx-auto"
                     >
+                        <LogIn className="w-4 h-4 mr-2" />
                         Đăng nhập
                     </Link>
                 </div>
@@ -1358,15 +1324,18 @@ const MyProjects = ({ isLoggedIn }) => {
         return (
             <div className="fade-in px-4 sm:px-6 lg:px-12 py-6">
                 <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-                    <div className="text-5xl mb-4 text-red-400">❌</div>
+                    <div className="text-5xl mb-4 text-red-400">
+                        <AlertTriangle className="w-12 h-12 mx-auto" />
+                    </div>
                     <h2 className="text-2xl font-bold text-red-700 mb-2">
                         Lỗi khi tải dự án
                     </h2>
                     <p className="text-gray-600 mb-4">{error}</p>
                     <button
                         onClick={() => window.location.reload()}
-                        className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors duration-200 font-semibold"
+                        className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors duration-200 font-semibold flex items-center justify-center w-fit mx-auto"
                     >
+                        <RefreshCw className="w-4 h-4 mr-2" />
                         Thử lại
                     </button>
                 </div>
@@ -1387,9 +1356,10 @@ const MyProjects = ({ isLoggedIn }) => {
                 </div>
                 <Link
                     to="/dancing-simulation"
-                    className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors duration-200 font-semibold text-base"
+                    className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors duration-200 font-semibold text-base flex items-center"
                 >
-                    + Tạo dự án mới
+                    <Plus className="w-4 h-4 mr-2" />
+                    Tạo dự án mới
                 </Link>
             </div>
 
@@ -1415,10 +1385,10 @@ const MyProjects = ({ isLoggedIn }) => {
                 </nav>
             </div>
 
-            {currentProjects?.length === 0 ? (
+            {(!currentProjects || currentProjects?.length === 0) ? (
                 <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200 text-center">
                     <div className="text-5xl mb-4 text-red-400 animate-bounce">
-                        📁
+                        <File className="w-12 h-12 mx-auto" />
                     </div>
                     <h2 className="text-3xl md:text-4xl font-bold text-red-700 mb-4">
                         Chưa có dự án {projectTypeMap[activeTab]}
@@ -1439,8 +1409,9 @@ const MyProjects = ({ isLoggedIn }) => {
                                 ? "/cloth-swap"
                                 : "/dancing-simulation"
                         }
-                        className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors duration-200 font-semibold"
+                        className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors duration-200 font-semibold flex items-center justify-center w-fit mx-auto"
                     >
+                        <Plus className="w-4 h-4 mr-2" />
                         Tạo dự án mới
                     </Link>
                 </div>
@@ -1496,20 +1467,7 @@ const MyProjects = ({ isLoggedIn }) => {
                                 onClick={closeModal}
                                 className="text-gray-500 hover:text-gray-700 p-2 hover:bg-gray-100 rounded-lg transition-colors"
                             >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-6 w-6"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M6 18L18 6M6 6l12 12"
-                                    />
-                                </svg>
+                                <X className="h-6 w-6" />
                             </button>
                         </div>
 
@@ -1536,20 +1494,7 @@ const MyProjects = ({ isLoggedIn }) => {
                     <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
                         <div className="text-center">
                             <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-6 w-6 text-red-600"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                    />
-                                </svg>
+                                <Trash2 className="h-6 w-6 text-red-600" />
                             </div>
                             <h3 className="text-lg font-medium text-gray-900 mb-2">
                                 Xác nhận xóa
@@ -1571,8 +1516,9 @@ const MyProjects = ({ isLoggedIn }) => {
                                 <button
                                     onClick={cancelDelete}
                                     disabled={deleteLoading}
-                                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-50"
+                                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-50 flex items-center"
                                 >
+                                    <X className="w-4 h-4 mr-2" />
                                     Hủy bỏ
                                 </button>
                                 <button
@@ -1583,6 +1529,7 @@ const MyProjects = ({ isLoggedIn }) => {
                                     {deleteLoading && (
                                         <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
                                     )}
+                                    <Trash2 className="w-4 h-4 mr-2" />
                                     Xóa dự án
                                 </button>
                             </div>
