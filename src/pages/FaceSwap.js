@@ -14,7 +14,7 @@ import {
     useVideoFaceSwap,
     useImageClothesSwap,
 } from "../hooks/FaceSwapHook";
-import { ArrowLeft, RotateCw } from 'lucide-react';
+import { ArrowLeft, Download, RotateCw } from 'lucide-react';
 
 const FaceSwap = ({ isLoggedIn }) => {
     const [step, setStep] = useState(1);
@@ -1429,13 +1429,7 @@ const FaceSwap = ({ isLoggedIn }) => {
                                 onClick={handleDownload}
                                 className="bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 inline-flex items-center justify-center"
                             >
-                                <svg
-                                    className="h-5 w-5 mr-2"
-                                    fill="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path d="M19 11h-3v8H8v-8H5l7-7 7 7zm-7 11c-1.1 0-2-.9-2-2h4c0 1.1-.9 2-2 2z" />
-                                </svg>
+                                <Download className="w-4 h-4 mr-1" />
                                 Tải xuống
                             </button>
                             {mode === "video" && (
