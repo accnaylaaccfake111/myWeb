@@ -43,7 +43,7 @@ export const useApiStatusPolling = () => {
                     } else if (statusResponse.status === "PROCESSING") {
                         onStatusUpdate(statusResponse);
                         // Tiếp tục polling với interval 5 giây
-                        pollingRef.current = setTimeout(checkStatus, 2000);
+                        pollingRef.current = setTimeout(checkStatus, 30000);
                     } else if (statusResponse.status === "ERROR") {
                         onError(
                             new Error(statusResponse.message || "Lỗi xử lý"),

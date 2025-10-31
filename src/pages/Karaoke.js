@@ -15,14 +15,30 @@ import {
     processFileSource,
     callMergeVideoAPI,
 } from "../utils/exportFileKaraoke";
-import { RotateCw } from "lucide-react";
+import {
+    FolderOpen,
+    CheckCircle2,
+    Upload,
+    ChevronDown,
+    RotateCw,
+    Mic,
+    AlertTriangle,
+    AlertCircle,
+    Music,
+    Play,
+    Square,
+    Circle,
+    Save,
+    Download,
+    ArrowLeft,
+} from "lucide-react";
 
 const LoginPrompt = ({ location }) => {
     return (
         <div className="flex items-center justify-center bg-gray-50 px-4 sm:px-6 lg:px-12">
             <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-200 w-full max-w-md">
                 <div className="text-5xl mb-6 text-red-600 animate-bounce">
-                    🎤
+                    <Mic className="w-12 h-12 mx-auto" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">
                     Vui lòng đăng nhập
@@ -77,7 +93,43 @@ const Karaoke = ({ isLoggedIn }) => {
     const [isMicrophoneAvailable, setIsMicrophoneAvailable] = useState(false);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [voiceAnalysis, setVoiceAnalysis] = useState(null);
-    const [existingProjects, setExistingProjects] = useState([]);
+    const [existingProjects, setExistingProjects] = useState([
+        {
+            id: 1,
+            name: "Mùa xuân ơi",
+            type: "Karaoke và Chấm điểm",
+            date: "21/8/2025",
+            genre: "Dân ca Bắc Bộ",
+            difficulty: "Trung bình",
+            rating: 3,
+            lyrics: `Mùa xuân ơi, đến rồi đây
+Cánh hoa đào nở, đất trời say
+Nắng vàng rải nhẹ trên từng cành lá
+Mùa xuân về, lòng người xốn xang
+
+Xuân sang mang theo bao ước mơ
+Đong đầy hạnh phúc, chờ mong tết
+Cùng nhau đón xuân, vui bên gia đình
+Mùa xuân của em, thật diệu kỳ`,
+            audio: "/audio/mua-xuan-oi.mp3",
+            isSaved: true,
+        },
+        {
+            id: 2,
+            name: "Sân trường rộn rã",
+            type: "Karaoke và Chấm điểm",
+            date: "20/8/2025",
+            genre: "Dân ca hiện đại",
+            difficulty: "Dễ",
+            rating: 2,
+            lyrics: `Sân trường rộn rã tiếng cười
+Trang sách mở ra bao điều mới
+Thầy cô dìu dắt từng bước chúng em
+Con đò tri thức đưa bao thế hệ`,
+            audio: "/audio/san-truong-ron-ra.mp3",
+            isSaved: true,
+        },
+    ]);
     const [comboCount, setComboCount] = useState(0);
     const [maxCombo, setMaxCombo] = useState(0);
     const [countdown, setCountdown] = useState(0);
@@ -86,6 +138,7 @@ const Karaoke = ({ isLoggedIn }) => {
     const [listVideo, setListVideo] = useState([]);
     const [videoSelect, setVideoSelect] = useState(null);
     const [isExporting, setIsExporting] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     // Refs
     const audioChunksRef = useRef([]);
@@ -104,12 +157,7 @@ const Karaoke = ({ isLoggedIn }) => {
         "https://wavy-supercoincident-artie.ngrok-free.dev";
 
     const {
-        isReady,
-        isProcessing,
-        progress,
-        error,
         normalizeAudio,
-        validateAndFixAudio,
     } = useAudioNormalizer();
 
     // Data fetching
@@ -120,6 +168,7 @@ const Karaoke = ({ isLoggedIn }) => {
     }, []);
 
     const fetchInitialData = async () => {
+        setIsLoading(true);
         try {
             const faceData = (await getFaceData())?.data;
             fetchSheetMusicProjects(
@@ -131,6 +180,7 @@ const Karaoke = ({ isLoggedIn }) => {
         } catch (error) {
             console.error("Error fetching initial data:", error);
         }
+        setIsLoading(false);
     };
 
     const setData = async (d) => {
@@ -633,12 +683,6 @@ const Karaoke = ({ isLoggedIn }) => {
                             },
                         );
 
-                        console.log("✅ File đã được fix metadata:", {
-                            name: fixedAudioFile.name,
-                            size: fixedAudioFile.size,
-                            type: fixedAudioFile.type,
-                        });
-
                         setRecordedAudio(audioUrl);
                         setRecordedBlob(fixedBlob);
                         setRecordedFile(fixedAudioFile);
@@ -971,8 +1015,7 @@ const Karaoke = ({ isLoggedIn }) => {
     // Scoring and analysis - IMPROVED
     const analyzeVoice = async (audioFile, lyricsText) => {
         setIsAnalyzing(true);
-        if (!audioFile)
-        {
+        if (!audioFile) {
             console.error("❌ Không có file audio để phân tích");
             setRecordingError("Không có dữ liệu thu âm để phân tích");
             generateScore();
@@ -1217,7 +1260,7 @@ const Karaoke = ({ isLoggedIn }) => {
             return (
                 <div className="bg-green-100 border border-green-400 rounded-lg p-4">
                     <div className="flex items-center">
-                        <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse mr-2"></div>
+                        <Circle className="w-3 h-3 bg-red-500 rounded-full animate-pulse mr-2" />
                         <div>
                             <p className="text-green-800 font-semibold">
                                 Đang thu âm
@@ -1248,6 +1291,7 @@ const Karaoke = ({ isLoggedIn }) => {
                 onProjectSelect={handleProjectSelect}
                 onPageChange={setCurrentProjectPage}
                 navigate={navigate}
+                isLoading={isLoading}
             />
         );
     }
@@ -1267,20 +1311,7 @@ const Karaoke = ({ isLoggedIn }) => {
                     <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl transform transition-all">
                         <div className="text-center mb-6">
                             <div className="w-16 h-16 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-4">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-8 w-8 text-red-600"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
-                                    />
-                                </svg>
+                                <Music className="h-8 w-8 text-red-600" />
                             </div>
                             <h3 className="text-xl font-bold text-gray-800 mb-2">
                                 Thiếu file nhạc nền
@@ -1318,7 +1349,8 @@ const Karaoke = ({ isLoggedIn }) => {
 
                             {audioError && (
                                 <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-700 text-sm">
-                                    ⚠️ {audioError}
+                                    <AlertCircle className="w-4 h-4 inline mr-1" />
+                                    {audioError}
                                 </div>
                             )}
 
@@ -1342,55 +1374,65 @@ const Karaoke = ({ isLoggedIn }) => {
                 <div className="absolute top-4 left-4">
                     <button
                         onClick={() => navigate("/lyrics-composition")}
-                        className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
+                        className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105 flex items-center gap-2"
                     >
+                        <ArrowLeft className="w-4 h-4" />
                         Quay lại sáng tác
                     </button>
                 </div>
 
                 {/* Project Info */}
                 {selectedProject && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex justify-between items-center mt-4">
-                        <div>
-                            <div className="flex space-x-4">
-                                <h3 className="font-medium text-red-800">
-                                    Dự án đã chọn:
-                                </h3>
-                                <p className="text-red-600">
-                                    {selectedProject.name}
-                                </p>
+                    <div className="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-xl p-6 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mt-4 shadow-sm hover:shadow-md transition-shadow duration-300">
+                        {/* Left Section - Project Info */}
+                        <div className="flex-1">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                                <div className="flex items-center gap-2">
+                                    <FolderOpen className="h-5 w-5 text-red-600" />
+                                    <h3 className="font-semibold text-red-800 text-base">
+                                        Dự án đã chọn:
+                                    </h3>
+                                </div>
+                                <div className="bg-white px-3 py-2 rounded-lg border border-red-100 shadow-sm">
+                                    <p className="text-red-700 font-medium text-sm">
+                                        {selectedProject.name}
+                                    </p>
+                                </div>
                             </div>
+
+                            {/* Audio File Status */}
                             {audioFile && (
-                                <div className="flex items-center mt-1 text-green-600">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        className="h-4 w-4 mr-1"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M15.536 8.464a5 5 0 010 7.072M12 6a9 9 0 010 12m4.5-15.5a13 13 0 010 19M9 9h1.246a1 1 0 01.961.725l1.586 5.55a1 1 0 00.961.725H15"
-                                        />
-                                    </svg>
-                                    <span className="text-sm">
-                                        Đã tải file nhạc
+                                <div className="flex items-center mt-3 bg-green-50 border border-green-200 rounded-lg px-3 py-2 w-fit">
+                                    <CheckCircle2 className="h-4 w-4 text-green-600 mr-2" />
+                                    <span className="text-green-700 text-sm font-medium">
+                                        Đã tải file nhạc thành công
                                     </span>
                                 </div>
                             )}
                         </div>
-                        <div className="flex gap-2">
+
+                        {/* Right Section - Actions */}
+                        <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+                            {/* Audio Upload Button */}
                             <button
                                 onClick={handleOpenAudioUpload}
-                                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
+                                className={`
+            flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-semibold 
+            transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105
+            min-w-[140px]
+            ${
+                audioFile
+                    ? "bg-orange-500 hover:bg-orange-600 text-white"
+                    : "bg-blue-500 hover:bg-blue-600 text-white"
+            }
+          `}
                             >
+                                <Upload className="h-4 w-4" />
                                 {audioFile ? "Thay đổi nhạc" : "Thêm nhạc"}
                             </button>
 
-                            <div className="w-[12rem]">
+                            {/* Video Select */}
+                            <div className="relative flex-1 sm:w-[200px]">
                                 <select
                                     id="my-select"
                                     value={videoSelect}
@@ -1398,15 +1440,15 @@ const Karaoke = ({ isLoggedIn }) => {
                                         setVideoSelect(e.target.value);
                                         console.log(e.target.value);
                                     }}
-                                    className="w-full bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
+                                    className="
+              w-full bg-white border border-gray-300 text-gray-800 px-4 py-2.5 
+              rounded-xl hover:border-gray-400 focus:border-blue-500 focus:ring-2 
+              focus:ring-blue-200 transition-all duration-200 font-medium 
+              shadow-sm hover:shadow-md appearance-none pr-10
+            "
                                 >
-                                    <option
-                                        key={"/videoKaraoke/7135449603513.mp4"}
-                                        value={
-                                            "/videoKaraoke/7135449603513.mp4"
-                                        }
-                                    >
-                                        Mặc định
+                                    <option value="/videoKaraoke/7135449603513.mp4">
+                                        🎬 Video mặc định
                                     </option>
                                     {listVideo
                                         ?.filter((x) => x.resultUrl)
@@ -1415,12 +1457,17 @@ const Karaoke = ({ isLoggedIn }) => {
                                                 key={index}
                                                 value={option.resultUrl}
                                             >
+                                                🎥{" "}
                                                 {option?.resultUrl
                                                     ?.split("/")
-                                                    .pop() ?? `Video  ${index}`}
+                                                    .pop() ??
+                                                    `Video ${index + 1}`}
                                             </option>
                                         ))}
                                 </select>
+                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3">
+                                    <ChevronDown className="h-4 w-4 text-gray-500" />
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1431,20 +1478,7 @@ const Karaoke = ({ isLoggedIn }) => {
                 {recordingError && (
                     <div className="bg-red-100 border border-red-400 rounded-lg p-4">
                         <div className="flex items-center">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-6 w-6 text-red-600 mr-2"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
-                                />
-                            </svg>
+                            <AlertTriangle className="h-6 w-6 text-red-600 mr-2" />
                             <div>
                                 <p className="text-red-800 font-semibold">
                                     Lỗi thu âm
@@ -1460,20 +1494,7 @@ const Karaoke = ({ isLoggedIn }) => {
                 {!isMicrophoneAvailable && recordingStatus === "idle" && (
                     <div className="bg-yellow-100 border border-yellow-400 rounded-lg p-4">
                         <div className="flex items-center">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-6 w-6 text-yellow-600 mr-2"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
-                                />
-                            </svg>
+                            <AlertTriangle className="h-6 w-6 text-yellow-600 mr-2" />
                             <div>
                                 <p className="text-yellow-800 font-semibold">
                                     Microphone chưa được cấp quyền
@@ -1507,20 +1528,7 @@ const Karaoke = ({ isLoggedIn }) => {
                     <div className="flex flex-col lg:w-1/3 bg-white bg-opacity-90 rounded-lg p-6 shadow-lg border border-gray-200">
                         <div className="text-center text-lg font-semibold text-gray-800 mb-4">
                             <span className="flex items-center justify-center">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-6 w-6 text-red-600 mr-2"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M9 17V7h10v10H9zM3 5h4v14H3V5z"
-                                    />
-                                </svg>
+                                <Music className="h-6 w-6 text-red-600 mr-2" />
                                 Toàn bộ lời bài hát
                             </span>
                         </div>
@@ -1574,18 +1582,7 @@ const Karaoke = ({ isLoggedIn }) => {
                                     >
                                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-20 group-hover:opacity-30 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-all duration-1000" />
 
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            className="h-6 w-6 group-hover:scale-110 transition-transform"
-                                            viewBox="0 0 20 20"
-                                            fill="currentColor"
-                                        >
-                                            <path
-                                                fillRule="evenodd"
-                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-                                                clipRule="evenodd"
-                                            />
-                                        </svg>
+                                        <Play className="h-6 w-6 group-hover:scale-110 transition-transform" />
 
                                         <span className="relative">
                                             {audioFile
@@ -1598,20 +1595,7 @@ const Karaoke = ({ isLoggedIn }) => {
                                 ) : (
                                     <div className="flex space-x-4">
                                         <div className="mb-4">
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                className="h-12 w-12 mx-auto text-red-500 animate-pulse"
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                                stroke="currentColor"
-                                            >
-                                                <path
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    strokeWidth={2}
-                                                    d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
-                                                />
-                                            </svg>
+                                            <Mic className="h-12 w-12 mx-auto text-red-500 animate-pulse" />
                                         </div>
                                         <p className="text-gray-300 text-base text-center">
                                             {isRecording
@@ -1620,8 +1604,9 @@ const Karaoke = ({ isLoggedIn }) => {
                                         </p>
                                         <button
                                             onClick={handleStop}
-                                            className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
+                                            className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105 flex items-center gap-2"
                                         >
+                                            <Square className="w-4 h-4" />
                                             Dừng thu âm
                                         </button>
                                     </div>

@@ -7,6 +7,7 @@ import khachthamque from "../assets/img/chaokhachthamque.png";
 import chucnghethapruou from "../assets/img/chucnghethapruou.png";
 import chucmungthapruouphule from "../assets/img/chucmungruouphule.png";
 import chiecmutaibeo from "../assets/img/chiecmutaibeo.png";
+import vinhlongnganxuan from "../assets/img/vinhlongnganxuan.png";
 const sangTacMoiData = [
   {
     id: 1,
@@ -386,6 +387,44 @@ Cái kể - Con xô: Chúc rượu Phú Lễ …., năm nào cũng tăng
       "Bài hát do TS. Nguyễn Nhã sáng tác, phát triển theo điệu lý Mười hai tháng, ca ngợi rượu Phú Lễ và tinh thần bảo tồn văn hóa.",
     modernDevelopment:
       "Được biểu diễn trong các lễ hội rượu và sự kiện quảng bá văn hóa Phú Lễ.",
+  },
+  {
+    id: 10,
+    title: "Vĩnh Long Ngàn Xuân",
+    content: `**Cái kể**: Cửu Long miền đất chín rồng
+Mêkông chín nhánh con sông xuôi dòng
+**Con xô**: Xuôi dòng ra cả biển Đông
+**Cái kể**: Trời Đông (a) rực ánh (á) bình minh
+Mùa xuân hoa nở muôn ngàn sắc xuân
+**Con xô**: Vĩnh Long ngày mới rực hồng
+**Cái kể**: Vượt qua (a) ngàn dặm (a) tình nồng
+Phương Nam tình đậm duyên trao lòng người
+**Con xô**: Bến Tre, Trà Vinh, Vĩnh Long
+**Cái kể**: Bến Tre (a) Trà Vinh (á) Vĩnh Long
+Tình quê, tình đất, tình người đậm sâu
+**Con xô**: Lịch sử vang dội, khắc ghi
+**Cái kể**: Lịch sử (a) vang dội (a) khắc ghi
+Đồng Khởi xưa ấy sử vàng lưu danh.
+**Con xô**: Sử tích cùng Long Hồ Dinh
+**Cái kể**: Ao Bà (Ôm) duyên thắm (á) tình trao
+Vang danh di tích cổ chùa Khơme
+**Con xô**: Vĩnh Long hội tụ tinh hoa
+**Cái kể**: Lung linh (a) ngày mới (á) hôm nay
+Cổ Chiên, Rạch Miễu, Mỹ Thuận vươn cao
+**Con xô**: Công nghệ số hóa bay cao
+**Cái kể**: Kề vai (a) góp sức (á) cùng nhau
+Cái kể - Con xô: hát lên khúc hát lời ca khải hoàn
+Cái kể - Con xô: Đón chào xuân mới… xuân son rạng ngời.
+
+**Mốc thời gian**: Sáng tác năm 2025.`,
+    image: vinhlongnganxuan,
+    year: "2025",
+    type: "Sáng tác mới",
+    icon: "🎶",
+    description:
+      "Bài hát được 2 bạn học sinh Bùi Thái Hiển và Bùi Phước Thông sáng tác năm 2025, ngay sau khi Bến Tre, Trà Vinh, Vĩnh Long chính thức sáp nhập thành tỉnh Vĩnh Long mới (hiệu lực 1/7/2025). Tác phẩm nhằm khẳng định tình đoàn kết, chung một lòng của nhân dân ba tỉnh, khơi dậy niềm tự hào quê hương, lịch sử và khát vọng xây dựng tỉnh mới giàu mạnh, trù phú.",
+    modernDevelopment:
+      "Được sử dụng trong các dịp lễ, sự kiện của tỉnh Vĩnh Long mới.",
   },
 ];
 

@@ -13,8 +13,14 @@ import MusicGenerationStage from "../components/lyricscomposition/MusicGeneratio
 import { storage } from "../utils/storage";
 import MusicXMLViewer from "../components/MusicXMLViewer";
 import { formatLyrics } from "../utils/util";
+import {
+    lyricsService,
+    musicService,
+    sheetMusicService,
+    networkService,
+} from "../services/lyricService";
 
-// Constants for status - Updated to match new requirements
+// Constants for status
 const STATUS = {
     DRAFT: "DRAFT",
     MUSIC_GENERATE_PROCESSING: "MUSIC_GENERATE_PROCESSING",
@@ -28,7 +34,6 @@ const STATUS = {
 
 // Map server status to frontend status
 const STATUS_MAPPING = {
-    // Music status mapping
     PROCESSING: STATUS.MUSIC_GENERATE_PROCESSING,
     PENDING: STATUS.MUSIC_GENERATE_PROCESSING,
     COMPLETED: STATUS.MUSIC_COMPLETED,
@@ -36,7 +41,6 @@ const STATUS_MAPPING = {
     FAILED: STATUS.MUSIC_FAILED,
     ERROR: STATUS.MUSIC_FAILED,
 
-    // Sheet status mapping
     SHEET_PROCESSING: STATUS.SHEET_GENERATE_PROCESSING,
     SHEET_PENDING: STATUS.SHEET_GENERATE_PROCESSING,
     SHEET_COMPLETED: STATUS.SHEET_COMPLETED,
@@ -60,10 +64,21 @@ const LyricsComposition = ({ isLoggedIn }) => {
     const [isGeneratingSheet, setIsGeneratingSheet] = useState(false);
     const [sheetTask, setSheetTask] = useState(null);
     const [video, setVideo] = useState(null);
+    const [uploadedAudio, setUploadedAudio] = useState(null);
+    const [isUploadingAudio, setIsUploadingAudio] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
+
+    // Thêm state mới cho chỉnh sửa
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedLyrics, setEditedLyrics] = useState("");
+    const [isSaving, setIsSaving] = useState(false);
 
     const audioRef = useRef(null);
     const musicPollingRef = useRef(null);
     const sheetPollingRef = useRef(null);
+    const fileInputRef = useRef(null);
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -118,6 +133,126 @@ const LyricsComposition = ({ isLoggedIn }) => {
         { id: "ân cần", name: "ân cần" },
     ];
 
+    // Hàm dừng polling
+    const stopMusicPolling = useCallback(() => {
+        if (musicPollingRef.current) {
+            clearTimeout(musicPollingRef.current);
+            musicPollingRef.current = null;
+            console.log("🛑 Music polling stopped");
+        }
+    }, []);
+
+    const stopSheetPolling = useCallback(() => {
+        if (sheetPollingRef.current) {
+            clearTimeout(sheetPollingRef.current);
+            sheetPollingRef.current = null;
+            console.log("🛑 Sheet music polling stopped");
+        }
+    }, []);
+
+    // Hàm reset audio state
+    const resetAudioState = useCallback(() => {
+        if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.src = "";
+            audioRef.current.load();
+        }
+        setIsPlaying(false);
+        setCurrentTime(0);
+        setDuration(0);
+
+        if (audioUrl && audioUrl.startsWith("blob:")) {
+            URL.revokeObjectURL(audioUrl);
+        }
+    }, [audioUrl]);
+
+    // Hàm xử lý upload file nhạc
+    const handleAudioUpload = useCallback(
+        async (file) => {
+            if (!file) return;
+
+            const allowedTypes = [
+                "audio/mpeg",
+                "audio/wav",
+                "audio/mp3",
+                "audio/x-m4a",
+                "audio/aac",
+                "audio/ogg",
+            ];
+
+            const allowedExtensions = [
+                ".mp3",
+                ".wav",
+                ".m4a",
+                ".aac",
+                ".ogg",
+                ".mp4",
+            ];
+            const fileExtension = file.name
+                .toLowerCase()
+                .substring(file.name.lastIndexOf("."));
+
+            if (
+                !allowedTypes.includes(file.type) &&
+                !allowedExtensions.includes(fileExtension)
+            ) {
+                setError("Chỉ chấp nhận file audio (MP3, WAV, M4A, AAC, OGG)");
+                return;
+            }
+
+            if (file.size > 10 * 1024 * 1024) {
+                setError("File không được lớn hơn 10MB");
+                return;
+            }
+
+            try {
+                setIsUploadingAudio(true);
+                setError("");
+
+                const objectUrl = URL.createObjectURL(file);
+                resetAudioState();
+                setAudioUrl(objectUrl);
+                setUploadedAudio(file);
+                setMusicStatus(STATUS.MUSIC_COMPLETED);
+
+                console.log("🎵 Audio file uploaded successfully:", file.name);
+            } catch (error) {
+                console.error("❌ Audio upload error:", error);
+                setError("Lỗi khi tải lên file nhạc: " + error.message);
+            } finally {
+                setIsUploadingAudio(false);
+            }
+        },
+        [resetAudioState],
+    );
+
+    // Hàm xử lý khi chọn file
+    const handleFileSelect = useCallback(
+        (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                handleAudioUpload(file);
+            }
+            event.target.value = "";
+        },
+        [handleAudioUpload],
+    );
+
+    // Hàm kích hoạt chọn file
+    const triggerFileSelect = useCallback(() => {
+        fileInputRef.current?.click();
+    }, []);
+
+    // Hàm xóa file đã upload
+    const handleRemoveUploadedAudio = useCallback(() => {
+        if (uploadedAudio) {
+            resetAudioState();
+            setUploadedAudio(null);
+            setAudioUrl(null);
+            setMusicStatus(STATUS.DRAFT);
+        }
+    }, [uploadedAudio, resetAudioState]);
+
     // Hàm map server status to frontend status
     const mapServerToFrontendStatus = useCallback(
         (serverStatus, type = "music") => {
@@ -125,12 +260,10 @@ const LyricsComposition = ({ isLoggedIn }) => {
 
             const upperStatus = serverStatus.toUpperCase();
 
-            // Direct mapping first
             if (STATUS_MAPPING[upperStatus]) {
                 return STATUS_MAPPING[upperStatus];
             }
 
-            // Type-specific mapping
             if (type === "music") {
                 if (
                     upperStatus.includes("PROCESS") ||
@@ -178,36 +311,138 @@ const LyricsComposition = ({ isLoggedIn }) => {
         [],
     );
 
-    // Hàm reset audio state
-    const resetAudioState = useCallback(() => {
-        if (audioRef.current) {
+    // Các hàm điều khiển phát nhạc
+    const handlePlayPause = useCallback(() => {
+        if (!audioRef.current) return;
+
+        if (isPlaying) {
             audioRef.current.pause();
-            audioRef.current.src = "";
-            audioRef.current.load();
+            setIsPlaying(false);
+        } else {
+            audioRef.current
+                .play()
+                .then(() => {
+                    setIsPlaying(true);
+                })
+                .catch((error) => {
+                    console.error("Error playing audio:", error);
+                    setError("Lỗi khi phát nhạc: " + error.message);
+                });
+        }
+    }, [isPlaying]);
+
+    const handleSeek = useCallback((newTime) => {
+        if (!audioRef.current) return;
+
+        audioRef.current.currentTime = newTime;
+        setCurrentTime(newTime);
+    }, []);
+
+    const handleTimeUpdate = useCallback(() => {
+        if (!audioRef.current) return;
+        setCurrentTime(audioRef.current.currentTime);
+    }, []);
+
+    const handleLoadedMetadata = useCallback(() => {
+        if (!audioRef.current) return;
+        setDuration(audioRef.current.duration || 0);
+    }, []);
+
+    const handleEnded = useCallback(() => {
+        setIsPlaying(false);
+        setCurrentTime(0);
+    }, []);
+
+    // Format time helper
+    const formatTime = useCallback((time) => {
+        if (!time || isNaN(time)) return "0:00";
+
+        const minutes = Math.floor(time / 60);
+        const seconds = Math.floor(time % 60);
+        return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+    }, []);
+
+    // Hàm xử lý chỉnh sửa lời bài hát
+    const handleStartEditing = useCallback(() => {
+        setIsEditing(true);
+        setEditedLyrics(lyrics);
+    }, [lyrics]);
+
+    const handleCancelEditing = useCallback(() => {
+        setIsEditing(false);
+        setEditedLyrics("");
+        setError("");
+    }, []);
+
+    const handleSaveLyrics = useCallback(async () => {
+        if (!editedLyrics.trim()) {
+            setError("Lời bài hát không được để trống");
+            return;
         }
 
-        if (audioUrl && audioUrl.startsWith("blob:")) {
-            URL.revokeObjectURL(audioUrl);
+        if (!projectInfor.id) {
+            setError("Không tìm thấy ID bài hát để cập nhật");
+            return;
         }
-    }, [audioUrl]);
+
+        try {
+            setIsSaving(true);
+            setError("");
+
+            const result = await lyricsService.update(
+                projectInfor.id,
+                editedLyrics,
+            );
+            console.log("✅ Lyrics updated successfully:", result);
+
+            // Cập nhật lyrics hiển thị
+            setLyrics(editedLyrics);
+            setIsEditing(false);
+
+            // Hiển thị thông báo thành công
+            alert("Đã lưu chỉnh sửa lời bài hát thành công!");
+        } catch (error) {
+            console.error("❌ Error saving lyrics:", error);
+            setError("Lỗi khi lưu chỉnh sửa: " + error.message);
+        } finally {
+            setIsSaving(false);
+        }
+    }, [editedLyrics, projectInfor]);
+
+    const handleLyricsChange = useCallback((e) => {
+        setEditedLyrics(e.target.value);
+    }, []);
 
     // Cleanup effect
     useEffect(() => {
         return () => {
-            if (musicPollingRef.current) {
-                clearTimeout(musicPollingRef.current);
+            stopMusicPolling();
+            stopSheetPolling();
+            if (audioUrl && audioUrl.startsWith("blob:")) {
+                URL.revokeObjectURL(audioUrl);
             }
-            if (sheetPollingRef.current) {
-                clearTimeout(sheetPollingRef.current);
-            }
-            resetAudioState();
         };
-    }, [resetAudioState]);
+    }, [stopMusicPolling, stopSheetPolling, audioUrl]);
+
+    // Effect để dừng polling khi status là FAILED
+    useEffect(() => {
+        if (musicStatus === STATUS.MUSIC_FAILED) {
+            stopMusicPolling();
+        }
+    }, [musicStatus, stopMusicPolling]);
 
     useEffect(() => {
-        console.log(location);
-        setVideo(location?.state?.video);
-    }, [location.state?.video])
+        if (sheetStatus === STATUS.SHEET_FAILED) {
+            stopSheetPolling();
+        }
+    }, [sheetStatus, stopSheetPolling]);
+
+    useEffect(() => {
+        console.log("Location state:", location);
+        if (location?.state?.video) {
+            setVideo(location.state.video);
+        }
+    }, [location.state?.video]);
 
     // Hàm parse lyrics data từ response
     const parseLyricsData = useCallback(
@@ -215,14 +450,11 @@ const LyricsComposition = ({ isLoggedIn }) => {
             if (!data) return "";
 
             try {
-                // Trường hợp 1: data là string trực tiếp
                 if (typeof data === "string") {
                     return formatLyrics(data);
                 }
 
-                // Trường hợp 2: data là object với các trường khác nhau
                 if (typeof data === "object") {
-                    // Ưu tiên các trường có thể chứa lyrics
                     const possibleLyricsFields = [
                         "lyrics",
                         "formattedLyrics",
@@ -247,7 +479,6 @@ const LyricsComposition = ({ isLoggedIn }) => {
                         }
                     }
 
-                    // Trường hợp 3: data có thể là array của lyrics lines
                     if (Array.isArray(data.lyricsLines)) {
                         const cleanLines = data.lyricsLines.filter((line) => {
                             const trimmed = line.trim();
@@ -262,7 +493,6 @@ const LyricsComposition = ({ isLoggedIn }) => {
                         return formatLyrics(cleanLines.join("\n"));
                     }
 
-                    // Trường hợp 4: data có thể là array của verses
                     if (Array.isArray(data.lyricsVerses)) {
                         const cleanVerses = data.lyricsVerses
                             .flat()
@@ -280,7 +510,6 @@ const LyricsComposition = ({ isLoggedIn }) => {
                     }
                 }
 
-                // Fallback: chuyển thành string và format
                 return formatLyrics(String(data));
             } catch (error) {
                 console.error("Error parsing lyrics data:", error);
@@ -295,17 +524,14 @@ const LyricsComposition = ({ isLoggedIn }) => {
         if (!url) return null;
 
         try {
-            // Nếu URL đã là absolute URL, sử dụng trực tiếp
             if (url.startsWith("http")) {
                 return url;
             }
 
-            // Nếu là relative URL, kết hợp với base URL
             if (url.startsWith("/")) {
                 return `${process.env.REACT_APP_BE_API}${url}`;
             }
 
-            // Nếu là blob URL hoặc data URL, giữ nguyên
             if (url.startsWith("blob:") || url.startsWith("data:")) {
                 return url;
             }
@@ -319,78 +545,95 @@ const LyricsComposition = ({ isLoggedIn }) => {
 
     // Hàm kiểm tra trạng thái task nhạc
     const checkMusicTaskStatus = useCallback(async (taskId) => {
-        try {
-            const token = storage.getAccessToken();
-            console.log(`🔍 Checking music task status for: ${taskId}`);
+        let retryCount = 0;
+        const maxRetries = 3;
 
-            const response = await fetch(
-                `${process.env.REACT_APP_BE_API}/api/music/status/${taskId}`,
-                {
-                    method: "GET",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                        "ngrok-skip-browser-warning": true,
-                    },
-                },
-            );
+        const attemptFetch = async () => {
+            try {
+                console.log(`🔍 Checking music task status for: ${taskId}`);
+                const result = await musicService.checkStatus(taskId);
+                console.log(`📊 Music task status response:`, result);
+                return result;
+            } catch (error) {
+                console.error(
+                    `❌ Error checking music task status (attempt ${
+                        retryCount + 1
+                    }):`,
+                    error,
+                );
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                if (retryCount < maxRetries) {
+                    retryCount++;
+                    console.log(
+                        `🔄 Retrying music status check (${retryCount}/${maxRetries})...`,
+                    );
+                    await new Promise((resolve) =>
+                        setTimeout(resolve, 2000 * retryCount),
+                    );
+                    return attemptFetch();
+                }
+                throw error;
             }
+        };
 
-            const data = await response.json();
-            console.log(`📊 Music task status response:`, data);
-
-            return data;
-        } catch (error) {
-            console.error("❌ Error checking music task status:", error);
-            throw error;
-        }
+        return attemptFetch();
     }, []);
 
     // Hàm kiểm tra trạng thái task sheet music
     const checkSheetTaskStatus = useCallback(async (taskId) => {
-        try {
-            const token = storage.getAccessToken();
-            console.log(`🔍 Checking sheet music task status for: ${taskId}`);
+        let retryCount = 0;
+        const maxRetries = 3;
 
-            const response = await fetch(
-                `${process.env.REACT_APP_BE_API}/api/music/status/${taskId}`,
-                {
-                    method: "GET",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                        "ngrok-skip-browser-warning": true,
-                    },
-                },
-            );
+        const attemptFetch = async () => {
+            try {
+                console.log(
+                    `🔍 Checking sheet music task status for: ${taskId}`,
+                );
+                const result = await sheetMusicService.checkStatus(taskId);
+                console.log(`📊 Sheet music task status response:`, result);
+                return result;
+            } catch (error) {
+                console.error(
+                    `❌ Error checking sheet music task status (attempt ${
+                        retryCount + 1
+                    }):`,
+                    error,
+                );
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                if (retryCount < maxRetries) {
+                    retryCount++;
+                    console.log(
+                        `🔄 Retrying sheet status check (${retryCount}/${maxRetries})...`,
+                    );
+                    await new Promise((resolve) =>
+                        setTimeout(resolve, 2000 * retryCount),
+                    );
+                    return attemptFetch();
+                }
+                throw error;
             }
+        };
 
-            const data = await response.json();
-            console.log(`📊 Sheet music task status response:`, data);
-
-            return data;
-        } catch (error) {
-            console.error("❌ Error checking sheet music task status:", error);
-            throw error;
-        }
+        return attemptFetch();
     }, []);
 
-    // Hàm chờ cho đến khi task nhạc hoàn thành với polling
+    // Hàm chờ cho đến khi task nhạc hoàn thành với polling - ĐÃ SỬA
     const waitForMusicCompletion = useCallback(
         async (taskId, interval = 5000) => {
             let attempts = 0;
-            const maxAttempts = 60; // 3 phút timeout
+            const maxAttempts = 72;
 
             const poll = async () => {
+                // Kiểm tra nếu polling đã bị dừng
+                if (musicPollingRef.current === null && attempts > 0) {
+                    console.log("🛑 Music polling stopped manually");
+                    return null;
+                }
+
                 if (attempts >= maxAttempts) {
                     setMusicStatus(STATUS.MUSIC_FAILED);
-                    throw new Error("Music generation timeout after 3 minutes");
+                    stopMusicPolling();
+                    throw new Error("Music generation timeout after 6 minutes");
                 }
 
                 attempts++;
@@ -398,15 +641,12 @@ const LyricsComposition = ({ isLoggedIn }) => {
                 try {
                     const result = await checkMusicTaskStatus(taskId);
 
-                    // Log chi tiết trạng thái
                     console.log(`🔄 Music polling attempt ${attempts}:`, {
                         taskId,
                         status: result.status,
                         message: result.message,
-                        projectId: result.projectId,
                     });
 
-                    // Map server status to frontend status
                     const frontendStatus = mapServerToFrontendStatus(
                         result.status,
                         "music",
@@ -419,8 +659,8 @@ const LyricsComposition = ({ isLoggedIn }) => {
                                 "🎵 Music generation COMPLETED!",
                                 result,
                             );
+                            stopMusicPolling();
 
-                            // QUAN TRỌNG: Đảm bảo có URL audio hợp lệ
                             const audioUrl =
                                 result.outputUrl ||
                                 result.result ||
@@ -432,10 +672,10 @@ const LyricsComposition = ({ isLoggedIn }) => {
                                 );
                             }
 
-                            setProjectInfor({
-                                ...projectInfor,
+                            setProjectInfor((prev) => ({
+                                ...prev,
                                 ...result,
-                            });
+                            }));
 
                             return {
                                 ...result,
@@ -448,8 +688,8 @@ const LyricsComposition = ({ isLoggedIn }) => {
                                 taskId,
                                 error: result.errorMessage,
                                 status: result.status,
-                                message: result.message,
                             });
+                            stopMusicPolling();
                             throw new Error(
                                 result.errorMessage ||
                                     result.message ||
@@ -457,12 +697,12 @@ const LyricsComposition = ({ isLoggedIn }) => {
                             );
 
                         case STATUS.MUSIC_GENERATE_PROCESSING:
+                        case STATUS.DRAFT:
                             console.log(
-                                `⏳ Music generation in progress (${attempts}/${maxAttempts}):`,
-                                result.message || result.status,
+                                `⏳ Music generation in progress (${attempts}/${maxAttempts})`,
                             );
 
-                            // Tiếp tục chờ với interval
+                            // LUÔN TIẾP TỤC POLLING CHO TRẠNG THÁI PROCESSING
                             await new Promise((resolve) => {
                                 musicPollingRef.current = setTimeout(
                                     resolve,
@@ -476,8 +716,14 @@ const LyricsComposition = ({ isLoggedIn }) => {
                                 "⚠️ Unknown music task status:",
                                 result.status,
                             );
-                            setMusicStatus(STATUS.MUSIC_FAILED);
-                            throw new Error(`Unknown status: ${result.status}`);
+                            // TIẾP TỤC POLLING CHO CÁC TRẠNG THÁI KHÁC
+                            await new Promise((resolve) => {
+                                musicPollingRef.current = setTimeout(
+                                    resolve,
+                                    interval,
+                                );
+                            });
+                            return await poll();
                     }
                 } catch (error) {
                     console.error(
@@ -485,42 +731,44 @@ const LyricsComposition = ({ isLoggedIn }) => {
                         error,
                     );
 
-                    if (
-                        error.message.includes("Failed to fetch") &&
-                        attempts < maxAttempts
-                    ) {
-                        // Server có thể đang tạm thời không phản hồi, tiếp tục thử
-                        console.log("🔄 Retrying after fetch failure...");
-                        await new Promise((resolve) => {
-                            musicPollingRef.current = setTimeout(
-                                resolve,
-                                interval,
-                            );
-                        });
-                        return await poll();
+                    if (attempts >= maxAttempts) {
+                        stopMusicPolling();
+                        setMusicStatus(STATUS.MUSIC_FAILED);
+                        throw error;
                     }
 
-                    setMusicStatus(STATUS.MUSIC_FAILED);
-                    throw error;
+                    // THỬ LẠI SAU KHI BỊ LỖI
+                    console.log("🔄 Retrying after error...");
+                    await new Promise((resolve) => {
+                        musicPollingRef.current = setTimeout(resolve, interval);
+                    });
+                    return await poll();
                 }
             };
 
             return await poll();
         },
-        [checkMusicTaskStatus, mapServerToFrontendStatus],
+        [checkMusicTaskStatus, mapServerToFrontendStatus, stopMusicPolling],
     );
 
-    // Hàm chờ cho đến khi task sheet music hoàn thành với polling
+    // Hàm chờ cho đến khi task sheet music hoàn thành với polling - ĐÃ SỬA
     const waitForSheetCompletion = useCallback(
-        async (taskId, interval = 30000) => {
+        async (taskId, interval = 10000) => {
             let attempts = 0;
-            const maxAttempts = 60; // 3 phút timeout
+            const maxAttempts = 120;
 
             const poll = async () => {
+                // Kiểm tra nếu polling đã bị dừng
+                if (sheetPollingRef.current === null && attempts > 0) {
+                    console.log("🛑 Sheet music polling stopped manually");
+                    return null;
+                }
+
                 if (attempts >= maxAttempts) {
                     setSheetStatus(STATUS.SHEET_FAILED);
+                    stopSheetPolling();
                     throw new Error(
-                        "Sheet music generation timeout after 3 minutes",
+                        "Sheet music generation timeout after 20 minutes",
                     );
                 }
 
@@ -529,14 +777,12 @@ const LyricsComposition = ({ isLoggedIn }) => {
                 try {
                     const result = await checkSheetTaskStatus(taskId);
 
-                    // Log chi tiết trạng thái
                     console.log(`🔄 Sheet music polling attempt ${attempts}:`, {
                         taskId,
                         status: result.status,
                         message: result.message,
                     });
 
-                    // Map server status to frontend status
                     const frontendStatus = mapServerToFrontendStatus(
                         result.status,
                         "sheet",
@@ -547,12 +793,18 @@ const LyricsComposition = ({ isLoggedIn }) => {
                         case STATUS.SHEET_COMPLETED:
                             console.log(
                                 "🎼 Sheet music generation COMPLETED!",
-                                {
-                                    taskId,
-                                    result: result.result,
-                                    message: result.message,
-                                },
+                                result,
                             );
+                            stopSheetPolling();
+
+                            // Lưu sheet music
+                            const sheetData =
+                                result.sheetMusic ||
+                                result.result ||
+                                result.data;
+                            if (sheetData) {
+                                setSheetMusic(sheetData);
+                            }
 
                             return result;
 
@@ -561,8 +813,8 @@ const LyricsComposition = ({ isLoggedIn }) => {
                                 taskId,
                                 error: result.errorMessage,
                                 status: result.status,
-                                message: result.message,
                             });
+                            stopSheetPolling();
                             throw new Error(
                                 result.errorMessage ||
                                     result.message ||
@@ -571,11 +823,10 @@ const LyricsComposition = ({ isLoggedIn }) => {
 
                         case STATUS.SHEET_GENERATE_PROCESSING:
                             console.log(
-                                `⏳ Sheet music generation in progress (${attempts}/${maxAttempts}):`,
-                                result.message || result.status,
+                                `⏳ Sheet music generation in progress (${attempts}/${maxAttempts})`,
                             );
 
-                            // Tiếp tục chờ với interval
+                            // LUÔN TIẾP TỤC POLLING CHO TRẠNG THÁI PROCESSING
                             await new Promise((resolve) => {
                                 sheetPollingRef.current = setTimeout(
                                     resolve,
@@ -589,8 +840,14 @@ const LyricsComposition = ({ isLoggedIn }) => {
                                 "⚠️ Unknown sheet music task status:",
                                 result.status,
                             );
-                            setSheetStatus(STATUS.SHEET_FAILED);
-                            throw new Error(`Unknown status: ${result.status}`);
+                            // TIẾP TỤC POLLING CHO CÁC TRẠNG THÁI KHÁC
+                            await new Promise((resolve) => {
+                                sheetPollingRef.current = setTimeout(
+                                    resolve,
+                                    interval,
+                                );
+                            });
+                            return await poll();
                     }
                 } catch (error) {
                     console.error(
@@ -598,29 +855,24 @@ const LyricsComposition = ({ isLoggedIn }) => {
                         error,
                     );
 
-                    if (
-                        error.message.includes("Failed to fetch") &&
-                        attempts < maxAttempts
-                    ) {
-                        // Server có thể đang tạm thời không phản hồi, tiếp tục thử
-                        console.log("🔄 Retrying after fetch failure...");
-                        await new Promise((resolve) => {
-                            sheetPollingRef.current = setTimeout(
-                                resolve,
-                                interval,
-                            );
-                        });
-                        return await poll();
+                    if (attempts >= maxAttempts) {
+                        stopSheetPolling();
+                        setSheetStatus(STATUS.SHEET_FAILED);
+                        throw error;
                     }
 
-                    setSheetStatus(STATUS.SHEET_FAILED);
-                    throw error;
+                    // THỬ LẠI SAU KHI BỊ LỖI
+                    console.log("🔄 Retrying after error...");
+                    await new Promise((resolve) => {
+                        sheetPollingRef.current = setTimeout(resolve, interval);
+                    });
+                    return await poll();
                 }
             };
 
             return await poll();
         },
-        [checkSheetTaskStatus, mapServerToFrontendStatus],
+        [checkSheetTaskStatus, mapServerToFrontendStatus, stopSheetPolling],
     );
 
     // Hàm tạo nhạc
@@ -634,49 +886,22 @@ const LyricsComposition = ({ isLoggedIn }) => {
 
                 setIsGeneratingMusic(true);
                 setMusicStatus(STATUS.MUSIC_GENERATE_PROCESSING);
+                setError("");
 
-                // QUAN TRỌNG: Reset audio state trước khi tạo mới
                 resetAudioState();
                 setAudioUrl(null);
+                setUploadedAudio(null);
 
                 console.log("🎶 Starting music generation with parameters:", {
                     theme: themeData.theme,
                     mood: themeData.mood,
-                    lyrics: lyrics.substring(0, 100) + "...",
                 });
 
-                const response = await fetch(
-                    `${process.env.REACT_APP_BE_API}/api/music/generate`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            Authorization: `Bearer ${token}`,
-                        },
-                        body: JSON.stringify({
-                            lyricId: id,
-                            userName: null,
-                            theme: themeData.theme,
-                            mood: themeData.mood,
-                            duration: 16,
-                        }),
-                    },
-                );
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(
-                        `HTTP error! status: ${response.status}, ${errorText}`,
-                    );
-                }
-
-                const taskData = await response.json();
+                const taskData = await musicService.generate(id, themeData);
                 console.log("🎵 Music generation task started:", taskData);
 
-                // Lưu thông tin task
                 setMusicTask(taskData);
 
-                // Xác định taskId (hỗ trợ cả taskId và processId từ API)
                 const taskId = taskData.taskId || taskData.processId;
 
                 if (!taskId) {
@@ -685,23 +910,25 @@ const LyricsComposition = ({ isLoggedIn }) => {
 
                 console.log(`🆔 Starting music polling for task: ${taskId}`);
 
-                // Bắt đầu polling để kiểm tra trạng thái
+                // ĐẢM BẢO POLLING BẮT ĐẦU
+                musicPollingRef.current = true;
+
                 const finalResult = await waitForMusicCompletion(taskId);
+
+                if (!finalResult) {
+                    throw new Error("Music generation was cancelled");
+                }
 
                 console.log(
                     "🎉 Music generation completed successfully:",
                     finalResult,
                 );
 
-                // QUAN TRỌNG: Tạo URL audio an toàn
                 const safeAudioUrl = createSafeAudioUrl(finalResult.audioUrl);
                 if (!safeAudioUrl) {
                     throw new Error("Invalid audio URL received");
                 }
 
-                console.log("🔊 Setting safe audio URL:", safeAudioUrl);
-
-                // Reset audio state trước khi set URL mới
                 resetAudioState();
                 setAudioUrl(safeAudioUrl);
 
@@ -709,6 +936,7 @@ const LyricsComposition = ({ isLoggedIn }) => {
             } catch (error) {
                 console.error("❌ Music generation error:", error);
                 setError("Lỗi khi tạo nhạc: " + error.message);
+                setMusicStatus(STATUS.MUSIC_FAILED);
                 throw error;
             } finally {
                 setIsGeneratingMusic(false);
@@ -716,92 +944,91 @@ const LyricsComposition = ({ isLoggedIn }) => {
         },
         [
             themeData,
-            lyrics,
             waitForMusicCompletion,
             createSafeAudioUrl,
             resetAudioState,
         ],
     );
 
-    // Hàm tạo sheet music (nốt nhạc) với cơ chế polling
+    // Hàm tạo sheet music - ĐÃ SỬA
     const generateSheetMusic = useCallback(async () => {
-        // console.log(projectInfor);
-        // if (!projectInfor.id) {
-        //     setError("Không có thông tin dự án để tạo nốt nhạc");
-        //     return;
-        // }
-
         try {
             setIsGeneratingSheet(true);
             setSheetStatus(STATUS.SHEET_GENERATE_PROCESSING);
+            setError("");
 
-            const token = storage.getAccessToken();
-            console.log(projectInfor);
-            const response = await fetch(
-                `${process.env.REACT_APP_BE_API}/api/sheets?musicId=${projectInfor.sheetMusicId}`,
-                {
-                    method: "POST",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                        "ngrok-skip-browser-warning": true,
-                    },
-                    body: JSON.stringify({
-                        musicId: projectInfor.id,
-                    }),
-                },
-            );
+            console.log("🎼 Starting sheet music generation...");
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            let taskData;
+
+            if (uploadedAudio) {
+                console.log(
+                    "🎼 Using NEW API for uploaded file:",
+                    uploadedAudio.name,
+                );
+                taskData = await sheetMusicService.uploadAndGenerate(
+                    uploadedAudio,
+                    projectInfor.id,
+                );
+            } else {
+                console.log("🎼 Using OLD API for AI-generated music");
+                taskData = await sheetMusicService.generate(
+                    projectInfor.id,
+                    projectInfor.id,
+                );
             }
 
-            const taskData = await response.json();
             console.log("🎼 Sheet music generation task started:", taskData);
 
-            // Lưu thông tin task
             setSheetTask(taskData);
-            console.log("task data: ", projectInfor);
 
-            // Xác định taskId
-            const taskId = projectInfor.taskId;
+            const taskId =
+                taskData.data?.taskId || taskData.processId || taskData.id;
+
+            console.log("Task ID for sheet music:", taskId);
 
             if (!taskId) {
-                return null;
+                console.warn("⚠️ No task ID available for sheet music polling");
+                setSheetStatus(STATUS.SHEET_COMPLETED);
+                const sheetData =
+                    taskData.sheetMusic || taskData.result || taskData.data;
+                if (sheetData) {
+                    setSheetMusic(sheetData);
+                }
+                return taskData;
             }
 
             console.log(`🆔 Starting sheet music polling for task: ${taskId}`);
-            const finalResult = await waitForSheetCompletion(taskId);
-            console.log(
-                "🎉 Sheet music generation completed successfully:",
-                finalResult,
-            );
 
-            // Lưu sheet music vào state
-            setSheetMusic(finalResult.sheetMusic || finalResult.result);
+            // ĐẢM BẢO POLLING BẮT ĐẦU
+            sheetPollingRef.current = true;
+
+            const finalResult = await waitForSheetCompletion(taskId);
+
+            if (!finalResult) {
+                console.warn("Sheet music generation returned null result");
+                return null;
+            }
+
+            // Lưu sheet music
+            const sheetData =
+                finalResult.sheetMusic ||
+                finalResult.result ||
+                finalResult.data;
+            if (sheetData) {
+                setSheetMusic(sheetData);
+            }
 
             return finalResult;
         } catch (error) {
             console.error("❌ Error generating sheet music:", error);
             setError("Lỗi khi tạo nốt nhạc: " + error.message);
+            setSheetStatus(STATUS.SHEET_FAILED);
             throw error;
         } finally {
             setIsGeneratingSheet(false);
         }
-    }, [projectInfor.id, waitForSheetCompletion]);
-
-    // Hàm kiểm tra kết nối mạng
-    const checkNetworkConnection = useCallback(async () => {
-        try {
-            await fetch("https://httpbin.org/get", {
-                method: "GET",
-                mode: "no-cors",
-            });
-            return true;
-        } catch (error) {
-            return false;
-        }
-    }, []);
+    }, [projectInfor, waitForSheetCompletion, uploadedAudio]);
 
     // Hàm generate lyrics
     const generateLyrics = useCallback(
@@ -818,13 +1045,19 @@ const LyricsComposition = ({ isLoggedIn }) => {
                 setMusicTask(null);
                 resetAudioState();
                 setAudioUrl(null);
-                setSheetMusic(null); // Reset sheet music khi tạo lời mới
-                setSheetTask(null); // Reset sheet task
-                setMusicStatus(STATUS.DRAFT); // Reset music status
-                setSheetStatus(STATUS.DRAFT); // Reset sheet status
+                setUploadedAudio(null);
+                setSheetMusic(null);
+                setSheetTask(null);
+                setMusicStatus(STATUS.DRAFT);
+                setSheetStatus(STATUS.DRAFT);
+                setIsEditing(false);
+                setEditedLyrics("");
 
-                // Kiểm tra kết nối mạng trước
-                const isOnline = await checkNetworkConnection();
+                // Dừng mọi polling đang chạy
+                stopMusicPolling();
+                stopSheetPolling();
+
+                const isOnline = await networkService.checkConnection();
                 if (!isOnline) {
                     throw new Error(
                         "Không có kết nối internet. Vui lòng kiểm tra mạng của bạn.",
@@ -839,76 +1072,9 @@ const LyricsComposition = ({ isLoggedIn }) => {
                     );
                 }
 
-                const requestBody = {
-                    theme: themeData.theme,
-                    note: themeData.customTheme || "",
-                    mood: themeData.mood || "thân mật",
-                    minLines: 8,
-                    maxLines: 32,
-                    language: "vi",
-                    useAI: true,
-                    title: themeData.nameTitle,
-                };
-
-                const API_URL = `${process.env.REACT_APP_BE_API}/api/lyrics/generate`;
-
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 300000);
-
-                const response = await fetch(API_URL, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                        Accept: "application/json",
-                        Origin: window.location.origin,
-                        "ngrok-skip-browser-warning": true,
-                    },
-                    body: JSON.stringify(requestBody),
-                    signal: controller.signal,
-                    mode: "cors",
-                });
-
-                clearTimeout(timeoutId);
-
-                if (!response.ok) {
-                    let errorData;
-                    try {
-                        const errorText = await response.text();
-                        errorData = JSON.parse(errorText);
-                    } catch (e) {
-                        errorData = {
-                            message: `HTTP error! status: ${response.status}`,
-                        };
-                    }
-
-                    switch (response.status) {
-                        case 401:
-                            throw new Error(
-                                "Token không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập lại.",
-                            );
-                        case 403:
-                            throw new Error(
-                                "Bạn không có quyền truy cập tính năng này.",
-                            );
-                        case 404:
-                            throw new Error("API endpoint không tồn tại.");
-                        case 500:
-                            throw new Error(
-                                "Lỗi server. Vui lòng thử lại sau.",
-                            );
-                        default:
-                            throw new Error(
-                                errorData.message ||
-                                    `Lỗi server: ${response.status}`,
-                            );
-                    }
-                }
-
-                const responseData = await response.json();
+                const responseData = await lyricsService.generate(themeData);
                 console.log("Raw API response:", responseData);
 
-                // Sử dụng hàm parseLyricsData để xử lý dữ liệu
                 let generatedLyrics = "";
                 setProjectInfor(responseData.data);
 
@@ -939,7 +1105,7 @@ const LyricsComposition = ({ isLoggedIn }) => {
                     error.message.includes("Failed to fetch")
                 ) {
                     errorMessage =
-                        "Không thể kết nối đến server. Có thể do:\n\n• Server API không hoạt động\n• Lỗi CORS (Cross-Origin Resource Sharing)\n• Kết nối mạng không ổn định\n• Tường lửa chặn kết nối\n\nVui lòng kiểm tra:\n1. Kết nối internet\n2. URL API có đúng không\n3. Server có đang chạy không";
+                        "Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng và thử lại.";
                 } else if (error.message.includes("Token không hợp lệ")) {
                     errorMessage = error.message;
                     storage.clearAuthData();
@@ -947,7 +1113,7 @@ const LyricsComposition = ({ isLoggedIn }) => {
                         navigate("/login", {
                             state: { from: "/lyrics-composition" },
                         });
-                    }, 300000);
+                    }, 3000);
                 } else if (
                     error.message.includes("Không có kết nối internet")
                 ) {
@@ -961,7 +1127,13 @@ const LyricsComposition = ({ isLoggedIn }) => {
                 setIsGenerating(false);
             }
         },
-        [checkNetworkConnection, navigate, parseLyricsData, resetAudioState],
+        [
+            navigate,
+            parseLyricsData,
+            resetAudioState,
+            stopMusicPolling,
+            stopSheetPolling,
+        ],
     );
 
     // Các hàm xử lý sự kiện
@@ -994,7 +1166,7 @@ const LyricsComposition = ({ isLoggedIn }) => {
                 setError("Vui lòng tạo lời bài hát trước khi tạo nhạc");
                 return;
             }
-            console.log(projectInfor);
+            console.log("Starting music generation for project:", projectInfor);
             await generateMusic(projectInfor.id);
         } catch (error) {
             console.error("Handle generate music error:", error);
@@ -1030,17 +1202,21 @@ const LyricsComposition = ({ isLoggedIn }) => {
     const getMusicStatusMessage = useCallback(() => {
         switch (musicStatus) {
             case STATUS.DRAFT:
-                return "Đang chờ tạo nhạc...";
+                return uploadedAudio
+                    ? "Đã tải lên file nhạc"
+                    : "Đang chờ tạo nhạc...";
             case STATUS.MUSIC_GENERATE_PROCESSING:
                 return "Đang tạo nhạc...";
             case STATUS.MUSIC_COMPLETED:
-                return "Tạo nhạc thành công!";
+                return uploadedAudio
+                    ? "Đã tải lên file nhạc thành công!"
+                    : "Tạo nhạc thành công!";
             case STATUS.MUSIC_FAILED:
                 return "Tạo nhạc thất bại!";
             default:
                 return "";
         }
-    }, [musicStatus]);
+    }, [musicStatus, uploadedAudio]);
 
     const getSheetStatusMessage = useCallback(() => {
         switch (sheetStatus) {
@@ -1085,6 +1261,25 @@ const LyricsComposition = ({ isLoggedIn }) => {
 
     return (
         <div className="w-full h-full pt-2 pb-6 bg-white">
+            {/* Input file ẩn cho upload audio */}
+            <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileSelect}
+                accept="audio/*"
+                className="hidden"
+            />
+
+            {/* Audio element ẩn với event handlers - SỬA: dùng undefined thay vì "" */}
+            <audio
+                ref={audioRef}
+                src={audioUrl || undefined}
+                onTimeUpdate={handleTimeUpdate}
+                onLoadedMetadata={handleLoadedMetadata}
+                onEnded={handleEnded}
+                preload="metadata"
+            />
+
             <div className="text-center mb-10">
                 <h1 className="text-4xl font-bold text-red-700 mb-2">
                     Sáng tác lời bài hát
@@ -1114,13 +1309,31 @@ const LyricsComposition = ({ isLoggedIn }) => {
                         onRegenerate={handleRegenerate}
                         onGenerateMusic={handleGenerateMusic}
                         onGenerateSheetMusic={generateSheetMusic}
+                        onUploadAudio={triggerFileSelect}
+                        onRemoveUploadedAudio={handleRemoveUploadedAudio}
                         isGeneratingMusic={isGeneratingMusic}
                         isGeneratingSheet={isGeneratingSheet}
+                        isUploadingAudio={isUploadingAudio}
                         musicUrl={audioUrl}
                         hasSheetMusic={!!sheetMusic}
+                        uploadedAudio={uploadedAudio}
                         musicStatusMessage={getMusicStatusMessage()}
                         sheetStatusMessage={getSheetStatusMessage()}
                         videoUrl={video}
+                        isPlaying={isPlaying}
+                        currentTime={currentTime}
+                        duration={duration}
+                        onPlayPause={handlePlayPause}
+                        onSeek={handleSeek}
+                        formatTime={formatTime}
+                        // Thêm props mới cho chỉnh sửa
+                        isEditing={isEditing}
+                        editedLyrics={editedLyrics}
+                        isSaving={isSaving}
+                        onStartEditing={handleStartEditing}
+                        onCancelEditing={handleCancelEditing}
+                        onSaveLyrics={handleSaveLyrics}
+                        onLyricsChange={handleLyricsChange}
                     />
 
                     <MusicGenerationStage
@@ -1128,6 +1341,12 @@ const LyricsComposition = ({ isLoggedIn }) => {
                         isGeneratingMusic={isGeneratingMusic}
                         audioUrl={audioUrl}
                         onError={setError}
+                        isPlaying={isPlaying}
+                        currentTime={currentTime}
+                        duration={duration}
+                        onPlayPause={handlePlayPause}
+                        onSeek={handleSeek}
+                        formatTime={formatTime}
                     />
                 </div>
             </div>

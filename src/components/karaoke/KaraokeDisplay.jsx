@@ -151,7 +151,7 @@ const BackgroundVideo = ({ selectedProject, videoRef, videoSelect }) => {
             <video
                 ref={videoRef}
                 src={videoSelect}
-                className="absolute w-full h-full object-contain"
+                className="absolute inset-0 object-contain"
                 autoPlay
                 loop
                 muted
@@ -162,7 +162,7 @@ const BackgroundVideo = ({ selectedProject, videoRef, videoSelect }) => {
             <video
                 ref={videoRef}
                 src={"/videoKaraoke/7135449603513.mp4"}
-                className="absolute w-full h-full object-contain"
+                className="absolute left-0 right-0 top-1/2 -translate-y-1/2 object-contain"
                 autoPlay
                 loop
                 muted

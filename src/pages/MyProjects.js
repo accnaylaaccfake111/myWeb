@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { storage } from "../utils/storage";
@@ -35,6 +37,7 @@ import {
     User,
     Film,
 } from "lucide-react";
+import SkeletonViewer from "../components/view3d/SkeletonViewer";
 
 const API_BASE_URL = process.env.REACT_APP_BE_API || "";
 
@@ -249,9 +252,19 @@ const MyProjects = ({ isLoggedIn }) => {
     // Fetch chi tiết dance simulation
     const fetchDanceSimulationDetail = async (id) => {
         try {
-            const response = danceSimulationProjects.find((x) => x.id === id);
-            console.log(response);
-            return response;
+            const token = storage.getAccessToken();
+
+            const response = await fetch(`${API_BASE_URL}/api/video-3d/${id}`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: "application/json",
+                    "ngrok-skip-browser-warning": true,
+                },
+            });
+
+            const result = await response.json();
+            return result.data;
         } catch (err) {
             console.error("Error fetching dance simulation detail:", err);
             throw err;
@@ -1088,7 +1101,7 @@ const MyProjects = ({ isLoggedIn }) => {
             </div>
 
             {/* Thông tin chi tiết dạng grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm">
                     <div className="flex items-center space-x-2">
                         <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -1098,26 +1111,6 @@ const MyProjects = ({ isLoggedIn }) => {
                             <div className="text-xs text-gray-500">Loại</div>
                             <div className="font-semibold text-sm truncate">
                                 {project.type || "Không xác định"}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm">
-                    <div className="flex items-center space-x-2">
-                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <Clock className="w-4 h-4 text-blue-600" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                            <div className="text-xs text-gray-500">
-                                Thời gian xử lý
-                            </div>
-                            <div className="font-semibold text-sm truncate">
-                                {project.processingTime
-                                    ? Math.round(
-                                          project.processingTime / 1000,
-                                      ) + "s"
-                                    : "Chưa xử lý"}
                             </div>
                         </div>
                     </div>
@@ -1140,44 +1133,39 @@ const MyProjects = ({ isLoggedIn }) => {
                         </div>
                     </div>
                 )}
+                {project.type === "COMPARE_VIDEOS" && (
+                    <div className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm">
+                        {[
+                            {
+                                label: "Tổng điểm",
+                                value: Math.round(
+                                    project.json.average_similarity_score * 100,
+                                ),
+                            },
+                        ].map((metric, index) => (
+                            <div key={index} className="text-center">
+                                <div className="flex justify-between">
+                                    <p className="text-gray-600 text-sm sm:text-base mb-2">
+                                        {metric.label}
+                                    </p>
+                                    <p className="text-gray-600 text-sm sm:text-base mt-1">
+                                        {metric.value}%
+                                    </p>
+                                </div>
+                                <div className="w-full bg-gray-200 rounded-full h-4">
+                                    <div
+                                        className="bg-red-700 h-4 rounded-full transition-all duration-500"
+                                        style={{ width: `${metric.value}%` }}
+                                    ></div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* Grid hiển thị media */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {/* Video đầu vào */}
-                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300">
-                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-3">
-                        <h4 className="font-semibold text-white text-sm flex items-center">
-                            <Video className="w-4 h-4 mr-2" />
-                            Video đầu vào
-                        </h4>
-                    </div>
-                    <div className="p-3">
-                        {project.videout1 ? (
-                            <div className="relative rounded-lg overflow-hidden bg-black">
-                                <div className="aspect-video w-full">
-                                    <video
-                                        src={project.videout1}
-                                        className="w-full h-full object-contain"
-                                        controls
-                                        preload="metadata"
-                                    />
-                                </div>
-                                <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
-                                    Video đầu vào
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="w-full aspect-video bg-gray-100 rounded-lg flex flex-col items-center justify-center border-2 border-dashed border-gray-300">
-                                <Film className="w-8 h-8 text-gray-400 mb-2" />
-                                <span className="text-gray-500 text-sm text-center px-2">
-                                    Không có video đầu vào
-                                </span>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
+            <div className="grid gap-4">
                 {/* Kết quả */}
                 <div className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300">
                     <div className="bg-gradient-to-r from-green-500 to-green-600 p-3">
@@ -1187,42 +1175,27 @@ const MyProjects = ({ isLoggedIn }) => {
                         </h4>
                     </div>
                     <div className="p-3">
-                        {project.videout2 ? (
-                            <div className="relative rounded-lg overflow-hidden bg-black">
-                                <div className="aspect-video w-full">
-                                    <video
-                                        src={project.videout2}
-                                        className="w-full h-full object-contain"
-                                        controls
-                                        preload="metadata"
-                                    />
-                                </div>
-                                <div className="absolute top-2 right-2 bg-green-600 text-white text-xs px-2 py-1 rounded-full font-semibold">
-                                    Kết quả
-                                </div>
-                            </div>
-                        ) : project.status === "PROCESSING" ? (
-                            <div className="w-full aspect-video bg-gradient-to-br from-red-50 to-orange-50 rounded-lg flex flex-col items-center justify-center border-2 border-dashed border-red-200">
-                                <div className="animate-spin rounded-full h-8 w-8 sm:h-10 sm:w-10 border-b-2 border-red-600 mb-2 sm:mb-3"></div>
-                                <span className="text-red-600 font-medium text-sm sm:text-base">
-                                    Đang xử lý...
-                                </span>
-                                <span className="text-red-500 text-xs mt-1 text-center px-2">
-                                    Vui lòng chờ trong giây lát
-                                </span>
-                            </div>
-                        ) : (
-                            <div className="w-full aspect-video bg-gray-100 rounded-lg flex flex-col items-center justify-center border-2 border-dashed border-gray-300">
-                                <span className="text-gray-500 text-sm text-center px-2">
-                                    Chưa có kết quả
-                                </span>
-                                {project.status === "FAILED" && (
-                                    <span className="text-red-500 text-xs mt-1">
-                                        Xử lý thất bại
-                                    </span>
-                                )}
-                            </div>
-                        )}
+                        <div className="w-full aspect-video bg-gray-100 rounded-lg flex flex-col items-center justify-center border-2 border-dashed border-gray-300">
+                            {(() => {
+                                console.log(project);
+                                if (project.type === "PROCESS_VIDEO_STREAM") {
+                                    return (
+                                        <SkeletonViewer
+                                            source="/models/Kachujin G Rosales.glb"
+                                            JsonPose={project.json}
+                                        />
+                                    );
+                                } else {
+                                    return (
+                                        <video
+                                            src={project.resultUrl}
+                                            className="w-full h-full object-contain"
+                                            controls
+                                        />
+                                    );
+                                }
+                            })()}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1385,7 +1358,7 @@ const MyProjects = ({ isLoggedIn }) => {
                 </nav>
             </div>
 
-            {(!currentProjects || currentProjects?.length === 0) ? (
+            {!currentProjects || currentProjects?.length === 0 ? (
                 <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200 text-center">
                     <div className="text-5xl mb-4 text-red-400 animate-bounce">
                         <File className="w-12 h-12 mx-auto" />

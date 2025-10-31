@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { Star, Video, LogIn, ArrowRight } from "lucide-react";
 import scoreImage from "../assets/img/score.png";
 import dance3DImage from "../assets/img/3ddance.png";
 
@@ -39,13 +40,7 @@ const DancingHandle = ({ isLoggedIn }) => {
                         <div className="p-8">
                             <div className="flex items-center mb-4">
                                 <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
-                                    <svg
-                                        className="w-6 h-6 text-red-700"
-                                        fill="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                                    </svg>
+                                    <Star className="w-6 h-6 text-red-700" />
                                 </div>
                                 <h2 className="text-2xl font-bold text-gray-800">
                                     Chấm Điểm Điệu Múa
@@ -55,16 +50,18 @@ const DancingHandle = ({ isLoggedIn }) => {
                             {isLoggedIn ? (
                                 <Link
                                     to="/dancing-scoring"
-                                    className="block w-full bg-red-600 text-white text-center py-4 px-6 rounded-xl font-semibold hover:bg-red-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                                    className="flex items-center justify-center w-full bg-red-600 text-white text-center py-4 px-6 rounded-xl font-semibold hover:bg-red-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                                 >
                                     Bắt Đầu Chấm Điểm
+                                    <ArrowRight className="w-4 h-4 ml-2" />
                                 </Link>
                             ) : (
                                 <Link
                                     to="/login"
                                     state={{ from: "/dancing-scoring" }}
-                                    className="block w-full bg-gray-400 text-white text-center py-4 px-6 rounded-xl font-semibold hover:bg-gray-500 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                                    className="flex items-center justify-center w-full bg-gray-400 text-white text-center py-4 px-6 rounded-xl font-semibold hover:bg-gray-500 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                                 >
+                                    <LogIn className="w-4 h-4 mr-2" />
                                     Đăng Nhập Để Sử Dụng
                                 </Link>
                             )}
@@ -90,13 +87,7 @@ const DancingHandle = ({ isLoggedIn }) => {
                         <div className="p-8">
                             <div className="flex items-center mb-4">
                                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
-                                    <svg
-                                        className="w-6 h-6 text-blue-700"
-                                        fill="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path d="M21 16V7c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v9c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zm-9 5c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm-9-7h18V7H3v7z" />
-                                    </svg>
+                                    <Video className="w-6 h-6 text-blue-700" />
                                 </div>
                                 <h2 className="text-2xl font-bold text-gray-800">
                                     Mô Phỏng 3D
@@ -106,16 +97,18 @@ const DancingHandle = ({ isLoggedIn }) => {
                             {isLoggedIn ? (
                                 <Link
                                     to="/dancing-simulation"
-                                    className="block w-full bg-blue-600 text-white text-center py-4 px-6 rounded-xl font-semibold hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                                    className="flex items-center justify-center w-full bg-blue-600 text-white text-center py-4 px-6 rounded-xl font-semibold hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                                 >
                                     Bắt Đầu Mô Phỏng
+                                    <ArrowRight className="w-4 h-4 ml-2" />
                                 </Link>
                             ) : (
                                 <Link
                                     to="/login"
                                     state={{ from: "/dancing-simulation" }}
-                                    className="block w-full bg-gray-400 text-white text-center py-4 px-6 rounded-xl font-semibold hover:bg-gray-500 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                                    className="flex items-center justify-center w-full bg-gray-400 text-white text-center py-4 px-6 rounded-xl font-semibold hover:bg-gray-500 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                                 >
+                                    <LogIn className="w-4 h-4 mr-2" />
                                     Đăng Nhập Để Sử Dụng
                                 </Link>
                             )}

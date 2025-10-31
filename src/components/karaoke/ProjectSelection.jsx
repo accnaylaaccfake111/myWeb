@@ -1,3 +1,5 @@
+import { Rotate3DIcon } from "lucide-react";
+
 const ProjectSelection = ({
     existingProjects,
     currentProjectPage,
@@ -5,6 +7,7 @@ const ProjectSelection = ({
     onProjectSelect,
     onPageChange,
     navigate,
+    isLoading,
 }) => {
     const projectsPerPage = 2;
     const currentProjects = existingProjects.slice(
@@ -13,7 +16,7 @@ const ProjectSelection = ({
     );
 
     return (
-        <div className="min-h-screen w-full px-4 sm:px-6 lg:px-12 pt-2 pb-6 bg-gray-50">
+        <div className="w-full px-4 sm:px-6 lg:px-12 pt-2 pb-6 bg-gray-50">
             <h1 className="text-3xl sm:text-4xl font-bold text-red-700 mb-2 text-center animate-pulse">
                 Karaoke và Chấm điểm
             </h1>
@@ -22,59 +25,66 @@ const ProjectSelection = ({
             </p>
 
             <div className="bg-white rounded-xl p-6 sm:p-8 shadow-lg border border-gray-200">
-                <div className="text-center">
-                    <div className="mb-6">
-                        <div className="w-20 h-20 mx-auto bg-red-50 rounded-full flex items-center justify-center">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-12 w-12 text-red-600"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                {isLoading ? (
+                    <div className="h-64 inset-0 flex flex-col justify-center items-center">
+                        <Rotate3DIcon className="w-16 h-16 text-gray-600 animate-spin mb-4" />
+                        <p className="text-gray-600">Đang tải dự án...</p>
+                    </div>
+                ) : (
+                    <div className="text-center">
+                        <div className="mb-6">
+                            <div className="w-20 h-20 mx-auto bg-red-50 rounded-full flex items-center justify-center">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-12 w-12 text-red-600"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                                    />
+                                </svg>
+                            </div>
+                        </div>
+                        <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+                            Chọn dự án có sẵn
+                        </h2>
+                        <p className="text-gray-600 mb-6">
+                            Chọn một dự án đã tạo hoặc quay lại sáng tác lời
+                        </p>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                            {currentProjects.map((project) => (
+                                <ProjectCard
+                                    key={project.id}
+                                    project={project}
+                                    onSelect={onProjectSelect}
                                 />
-                            </svg>
+                            ))}
+                        </div>
+
+                        {projectPages > 1 && (
+                            <Pagination
+                                currentPage={currentProjectPage}
+                                totalPages={projectPages}
+                                onPageChange={onPageChange}
+                            />
+                        )}
+
+                        <div className="border-t pt-6 mt-4 flex justify-center gap-4">
+                            <button
+                                onClick={() => navigate("/lyrics-composition")}
+                                className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
+                            >
+                                Quay lại sáng tác
+                            </button>
                         </div>
                     </div>
-                    <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-                        Chọn dự án có sẵn
-                    </h2>
-                    <p className="text-gray-600 mb-6">
-                        Chọn một dự án đã tạo hoặc quay lại sáng tác lời
-                    </p>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                        {currentProjects.map((project) => (
-                            <ProjectCard
-                                key={project.id}
-                                project={project}
-                                onSelect={onProjectSelect}
-                            />
-                        ))}
-                    </div>
-
-                    {projectPages > 1 && (
-                        <Pagination
-                            currentPage={currentProjectPage}
-                            totalPages={projectPages}
-                            onPageChange={onPageChange}
-                        />
-                    )}
-
-                    <div className="border-t pt-6 mt-4 flex justify-center gap-4">
-                        <button
-                            onClick={() => navigate("/lyrics-composition")}
-                            className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
-                        >
-                            Quay lại sáng tác
-                        </button>
-                    </div>
-                </div>
+                )}
             </div>
         </div>
     );

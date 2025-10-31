@@ -145,6 +145,27 @@ const Sidebar = ({ showSidebar, toggleSidebar }) => {
                                       </span>
                                   </Link>
                               </li>
+                              <li>
+                                  <Link
+                                      to="/feedback"
+                                      onClick={() =>
+                                          window.innerWidth < 768 &&
+                                          toggleSidebar()
+                                      }
+                                      className={`flex items-center space-x-4 p-4 rounded-xl transition-all ${
+                                          location.pathname === "/feedback"
+                                              ? "gradient-bg text-white shadow-lg"
+                                              : "text-dark hover:bg-red-50 hover:text-red-600"
+                                      }`}
+                                  >
+                                      <span className="text-xl">
+                                          <FolderOpen className="w-5 h-5" />
+                                      </span>
+                                      <span className="font-medium">
+                                          Đánh giá
+                                      </span>
+                                  </Link>
+                              </li>
                           </ul>
                       </nav>
                   </div>
