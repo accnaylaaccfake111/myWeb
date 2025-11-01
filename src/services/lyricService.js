@@ -99,15 +99,12 @@ export const musicService = {
 export const sheetMusicService = {
     // Generate sheet music from AI music
     generate: async (musicId, lyricId) => {
-        const requestBody = {
-            musicId: musicId,
-            lyricId: lyricId,
-        };
+        const params = new URLSearchParams({ musicId }).toString();
+        const url = `/api/sheets?${params}`;
 
-        return await apiCall("/api/sheets/generate", {
-            method: "POST",
-            body: JSON.stringify(requestBody),
-        });
+        console.log("🎵 [SheetMusic] Generate:", url);
+
+        return await apiCall(url, { method: "POST" });
     },
 
     // Upload audio file and generate sheet music

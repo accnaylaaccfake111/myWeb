@@ -71,7 +71,6 @@ const Home = () => {
     satisfaction: 0,
   });
 
-  // State cho chatbot
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
@@ -79,32 +78,27 @@ const Home = () => {
   const [chatHistory, setChatHistory] = useState([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  // State cho voice chat realtime
   const [isVoiceChatOpen, setIsVoiceChatOpen] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  const [recordingTime, setRecordingTime] = useState(0);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isVoiceActive, setIsVoiceActive] = useState(false);
   const [transcript, setTranscript] = useState("");
-  const [conversationState, setConversationState] = useState("IDLE"); // IDLE, LISTENING, ANALYZING, SPEAKING
+  const [conversationState, setConversationState] = useState("IDLE");
   const [error, setError] = useState(null);
 
   const statsRef = useRef(null);
   const featuresRef = useRef(null);
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
-  const recordingTimerRef = useRef(null);
   const finalTranscriptRef = useRef("");
   const recognitionRef = useRef(null);
   const femaleVoiceRef = useRef(null);
+  const userCanceledRef = useRef(false);
 
-  // API endpoints
   const API_BASE_URL = process.env.REACT_APP_BE_API || "http://localhost:8080";
   const SEND_MESSAGE_API = `${API_BASE_URL}/api/chat/send`;
   const CHAT_HISTORY_API = `${API_BASE_URL}/api/chat/history`;
 
-  // Speech Recognition Setup
   useEffect(() => {
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -122,53 +116,88 @@ const Home = () => {
       const availableVoices = window.speechSynthesis.getVoices();
 
       if (availableVoices.length === 0) {
-        // Trình duyệt chưa tải xong, đợi event
         return;
       }
 
-      // 1. Ưu tiên tìm giọng có chữ "Nữ" hoặc "Female"
       let bestVoice = availableVoices.find(
         (voice) =>
-          voice.lang.startsWith("vi") && // Bất kỳ tiếng Việt nào
+          voice.lang.startsWith("vi") &&
           (voice.name.includes("Nữ") ||
             voice.name.includes("Female") ||
             voice.name.includes("Google Tiếng Việt"))
       );
 
-      // 2. Nếu không, lấy bất kỳ giọng vi-VN nào
       if (!bestVoice) {
         bestVoice = availableVoices.find((voice) =>
           voice.lang.startsWith("vi-VN")
         );
       }
 
-      // 3. Lưu giọng tốt nhất tìm được vào ref
       if (bestVoice) {
         femaleVoiceRef.current = bestVoice;
-        console.log("Đã chọn giọng đọc:", bestVoice.name); // Để debug
+        console.log("Đã chọn giọng đọc:", bestVoice.name);
       } else {
         console.warn("Không tìm thấy giọng đọc tiếng Việt.");
       }
 
-      // Đã tìm thấy, không cần lắng nghe sự kiện nữa
       window.speechSynthesis.onvoiceschanged = null;
     };
 
-    // Tải danh sách giọng đọc
     loadVoices();
 
-    // Một số trình duyệt (như Chrome) tải danh sách bất đồng bộ
-    // Cần lắng nghe sự kiện onvoiceschanged
     if (window.speechSynthesis.onvoiceschanged !== undefined) {
       window.speechSynthesis.onvoiceschanged = loadVoices;
     }
-  }, []); // Chạy 1 lần duy nhất
+  }, []);
+
+  const startListening = useCallback(() => {
+    userCanceledRef.current = false;
+
+    if (!recognitionRef.current) {
+      setError("Speech recognition not available");
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+    finalTranscriptRef.current = "";
+    setTranscript("");
+    setError(null);
+    setConversationState("LISTENING");
+    setIsRecording(true);
+
+    try {
+      recognitionRef.current.start();
+    } catch (e) {
+      console.log("Could not start recognition:", e.message);
+      setConversationState("IDLE");
+      setIsRecording(false);
+    }
+  }, []);
+
+  const stopListening = useCallback(() => {
+    userCanceledRef.current = true;
+
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
+    window.speechSynthesis.cancel();
+    setIsRecording(false);
+    setConversationState("IDLE");
+    setTranscript("");
+  }, []);
 
   // Speech Recognition Event Handlers
   useEffect(() => {
     if (!recognitionRef.current) return;
 
     const analyzeAndSpeak = async (text) => {
+      // FIX LỖI: Kiểm tra cờ trước khi phân tích
+      if (userCanceledRef.current) {
+        setConversationState("IDLE");
+        setIsRecording(false);
+        return;
+      }
+
       if (!text.trim()) {
         setConversationState("IDLE");
         setIsRecording(false);
@@ -216,18 +245,39 @@ const Home = () => {
           utterance.onstart = () => {
             setConversationState("SPEAKING");
           };
+
           utterance.onend = () => {
-            // When bot finishes, listen again
+            if (userCanceledRef.current) {
+              setConversationState("IDLE");
+              return;
+            }
             setConversationState("IDLE");
             startListening();
           };
-          utterance.onerror = () => {
+
+          utterance.onerror = (event) => {
+            if (userCanceledRef.current) {
+              setConversationState("IDLE");
+              return;
+            }
+            if (
+              event &&
+              (event.error === "canceled" || event.error === "aborted")
+            ) {
+              setConversationState("IDLE");
+              return;
+            }
+
             setConversationState("IDLE");
             startListening();
           };
 
           window.speechSynthesis.speak(utterance);
         } else {
+          if (userCanceledRef.current) {
+            setConversationState("IDLE");
+            return;
+          }
           setConversationState("IDLE");
           startListening();
         }
@@ -255,11 +305,16 @@ const Home = () => {
 
     recognitionRef.current.onspeechstart = () => {
       if (window.speechSynthesis.speaking) {
+        userCanceledRef.current = true;
         window.speechSynthesis.cancel();
       }
     };
 
     recognitionRef.current.onend = () => {
+      if (userCanceledRef.current) {
+        setConversationState("IDLE");
+        return;
+      }
       analyzeAndSpeak(finalTranscriptRef.current);
     };
 
@@ -277,61 +332,7 @@ const Home = () => {
       }
       window.speechSynthesis.cancel();
     };
-  }, [API_BASE_URL]);
-
-  // Start listening function
-  const startListening = useCallback(() => {
-    if (!recognitionRef.current) {
-      setError("Speech recognition not available");
-      return;
-    }
-
-    // Stop any speaking and start listening
-    window.speechSynthesis.cancel();
-    finalTranscriptRef.current = "";
-    setTranscript("");
-    setError(null);
-    setConversationState("LISTENING");
-    setIsRecording(true);
-    setRecordingTime(0);
-
-    // Start recording timer
-    recordingTimerRef.current = setInterval(() => {
-      setRecordingTime((prev) => prev + 1);
-    }, 1000);
-
-    try {
-      recognitionRef.current.start();
-    } catch (e) {
-      console.log("Could not start recognition:", e.message);
-      setConversationState("IDLE");
-      setIsRecording(false);
-    }
-  }, []);
-
-  // Stop listening function
-  const stopListening = useCallback(() => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-    }
-    window.speechSynthesis.cancel();
-    setIsRecording(false);
-    setConversationState("IDLE");
-    setTranscript("");
-
-    if (recordingTimerRef.current) {
-      clearInterval(recordingTimerRef.current);
-    }
-  }, []);
-
-  // Format thời gian recording
-  const formatRecordingTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs
-      .toString()
-      .padStart(2, "0")}`;
-  };
+  }, [API_BASE_URL, startListening]);
 
   // Kiểm tra đăng nhập
   useEffect(() => {
@@ -370,10 +371,10 @@ const Home = () => {
 
   // Cuộn xuống tin nhắn mới nhất
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    if (isChatbotOpen && messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "instant" });
     }
-  }, [messages]);
+  }, [messages, isChatbotOpen]);
 
   // Format tin nhắn
   const formatMessage = (text) => {
@@ -670,7 +671,6 @@ const Home = () => {
     return () => observer.disconnect();
   }, []);
 
-  // Hàm định dạng thời gian
   const formatTime = (date) => {
     return date.toLocaleTimeString("vi-VN", {
       hour: "2-digit",
@@ -678,12 +678,10 @@ const Home = () => {
     });
   };
 
-  // Hàm định dạng ngày tháng
   const formatDate = (date) => {
     return date.toLocaleDateString("vi-VN");
   };
 
-  // Kiểm tra xem có phải là ngày mới không
   const isNewDay = (currentMsg, previousMsg) => {
     if (!previousMsg) return true;
     return (
@@ -691,7 +689,6 @@ const Home = () => {
     );
   };
 
-  // Kiểm tra xem có phải là lần đầu chat không
   const isFirstTimeChat = () => {
     return messages.length === 1 && messages[0].isBot;
   };
@@ -699,9 +696,6 @@ const Home = () => {
   // Cleanup khi unmount
   useEffect(() => {
     return () => {
-      if (recordingTimerRef.current) {
-        clearInterval(recordingTimerRef.current);
-      }
       if (recognitionRef.current) {
         recognitionRef.current.abort();
       }
@@ -895,10 +889,10 @@ const Home = () => {
             </button>
           )}
 
-          {/* Chatbot Interface */}
+          {/* Chatbot Interface - ĐÃ SỬA RESPONSIVE */}
           {isChatbotOpen && (
-            <div className="absolute bottom-full right-0 mb-4">
-              <div className="bg-white rounded-2xl shadow-2xl w-[400px] h-[75vh] max-h-[700px] flex flex-col border border-gray-200 overflow-hidden">
+            <div className="absolute bottom-full right-0 mb-4 w-[90vw] max-w-[400px] sm:w-[400px]">
+              <div className="bg-white rounded-2xl shadow-2xl w-full h-[75vh] max-h-[700px] flex flex-col border border-gray-200 overflow-hidden">
                 {/* Header với nút chuyển sang voice chat */}
                 <div className="bg-gradient-to-r from-red-600 to-amber-600 p-4 text-white">
                   <div className="flex items-center justify-between">
@@ -911,7 +905,9 @@ const Home = () => {
                         />
                       </div>
                       <div>
-                        <h3 className="font-semibold">Trợ lý AI</h3>
+                        <h3 className="font-semibold text-sm sm:text-base">
+                          Trợ lý AI
+                        </h3>
                         <p className="text-xs opacity-90">Đang trực tuyến</p>
                       </div>
                     </div>
@@ -923,7 +919,7 @@ const Home = () => {
                       className="bg-white/20 hover:bg-white/30 rounded-full px-3 py-1 text-xs font-medium transition-colors flex items-center gap-1"
                     >
                       <Mic className="w-3 h-3" />
-                      Voice Chat
+                      <span className="hidden xs:inline">Voice Chat</span>
                     </button>
                   </div>
                 </div>
@@ -931,7 +927,7 @@ const Home = () => {
                 {/* Messages Container */}
                 <div
                   ref={chatContainerRef}
-                  className="flex-1 overflow-y-auto p-4 bg-gray-50 space-y-3"
+                  className="flex-1 overflow-y-auto p-3 sm:p-4 bg-gray-50 space-y-3"
                 >
                   {isLoadingHistory ? (
                     <div className="flex justify-center items-center h-20">
@@ -966,7 +962,7 @@ const Home = () => {
                             }`}
                           >
                             <div
-                              className={`max-w-[85%] rounded-2xl p-3 ${
+                              className={`max-w-[90%] sm:max-w-[85%] rounded-2xl p-3 ${
                                 message.isBot
                                   ? "bg-white border border-gray-200 rounded-bl-none"
                                   : "bg-gradient-to-r from-red-600 to-amber-600 text-white rounded-br-none"
@@ -1025,7 +1021,7 @@ const Home = () => {
                 <div className="bg-white">
                   {/* Câu hỏi mẫu */}
                   {!isLoadingHistory && isFirstTimeChat() && isLoggedIn && (
-                    <div className="p-4 pb-2">
+                    <div className="p-3 sm:p-4 pb-2">
                       <div className="flex flex-wrap gap-2">
                         <button
                           onClick={() =>
@@ -1050,7 +1046,7 @@ const Home = () => {
                   {/* Form input */}
                   <form
                     onSubmit={handleSendMessage}
-                    className={`p-4 ${
+                    className={`p-3 sm:p-4 ${
                       !isLoadingHistory && isFirstTimeChat() && isLoggedIn
                         ? "border-t border-gray-200 pt-2"
                         : ""
@@ -1066,7 +1062,7 @@ const Home = () => {
                             ? "Nhập câu hỏi của bạn..."
                             : "Vui lòng đăng nhập để sử dụng trợ lý AI"
                         }
-                        className="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        className="flex-1 border border-gray-300 rounded-full px-3 sm:px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                         disabled={isLoading || isLoadingHistory || !isLoggedIn}
                       />
                       <button
@@ -1077,13 +1073,13 @@ const Home = () => {
                           isLoadingHistory ||
                           !isLoggedIn
                         }
-                        className="bg-gradient-to-r from-red-600 to-amber-600 text-white rounded-full p-2 hover:from-red-700 hover:to-amber-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="bg-gradient-to-r from-red-600 to-amber-600 text-white rounded-full p-2 hover:from-red-700 hover:to-amber-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
                       >
                         <Send className="w-4 h-4" />
                       </button>
                     </div>
                     <div className="flex justify-between items-center mt-2">
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-500 hidden xs:block">
                         {isLoggedIn
                           ? "Trợ lý AI hiểu biết về văn hóa Việt Nam"
                           : "Vui lòng đăng nhập để chat với AI"}
@@ -1096,7 +1092,7 @@ const Home = () => {
                           title="Xóa lịch sử chat"
                         >
                           <Trash2 className="w-3 h-3" />
-                          Xóa lịch sử
+                          <span className="hidden sm:inline">Xóa lịch sử</span>
                         </button>
                       )}
                     </div>
@@ -1106,17 +1102,15 @@ const Home = () => {
             </div>
           )}
 
-          {/* Voice Chat Interface */}
           {isVoiceChatOpen && (
-            <div className="absolute bottom-full right-0 mb-4">
-              <div className="bg-white rounded-2xl shadow-2xl w-[400px] h-[75vh] max-h-[700px] flex flex-col border border-gray-200 overflow-hidden">
-                {/* Header Voice Chat - Đơn giản */}
+            <div className="absolute bottom-full right-0 mb-4 w-[90vw] max-w-[400px] sm:w-[400px]">
+              <div className="bg-white rounded-2xl shadow-2xl w-full h-[75vh] max-h-[700px] flex flex-col border border-gray-200 overflow-hidden">
                 <div className="bg-gradient-to-r from-red-600 to-amber-600 p-4 text-white">
                   <div className="flex items-center justify-between">
                     <button
                       onClick={() => {
                         setIsVoiceChatOpen(false);
-                        setIsChatbotOpen(true); // Quay lại chatbot, không đóng
+                        setIsChatbotOpen(true);
                         stopListening();
                       }}
                       className="flex items-center gap-2 hover:bg-white/20 rounded-full px-3 py-1 transition-colors"
@@ -1130,48 +1124,24 @@ const Home = () => {
                     </div>
                   </div>
                 </div>
-
-                {/* Voice Chat Content - Minimalist */}
-                <div className="flex-1 flex flex-col items-center justify-center p-6 bg-gradient-to-b from-gray-50 to-white">
-                  {/* Trạng thái kết nối */}
-                  <div className="mb-8 text-center">
-                    <div className="flex items-center justify-center gap-2 mb-2">
-                      <div
-                        className={`w-3 h-3 rounded-full ${
-                          conversationState === "LISTENING"
-                            ? "bg-green-500 animate-pulse"
-                            : conversationState === "ANALYZING"
-                            ? "bg-yellow-500 animate-pulse"
-                            : conversationState === "SPEAKING"
-                            ? "bg-blue-500 animate-pulse"
-                            : "bg-gray-400"
-                        }`}
-                      ></div>
-                      <span className="text-sm text-gray-600">
-                        {getVoiceStatusText()}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Transcript Display */}
+                <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 bg-gradient-to-b from-gray-50 to-white">
+                  <img
+                    src={chatbotIcon}
+                    alt="Chatbot"
+                    className="w-16 h-16 sm:w-20 sm:h-20 mb-4 sm:mb-6"
+                  />
                   {(transcript || conversationState === "LISTENING") && (
-                    <div className="mb-6 text-center w-full">
-                      <div className="bg-white border border-gray-200 rounded-2xl p-4 mx-4">
+                    <div className="mb-4 sm:mb-6 text-center w-full">
+                      <div className="bg-white border border-gray-200 rounded-2xl p-3 sm:p-4 mx-2 sm:mx-4">
                         <p className="text-sm text-gray-700">
                           {transcript || "Đang nghe..."}
                         </p>
                       </div>
                     </div>
                   )}
-
-                  {/* Recording Status */}
                   {isRecording && (
-                    <div className="mb-6 text-center">
-                      <div className="text-2xl font-mono text-red-600 font-bold mb-2">
-                        {formatRecordingTime(recordingTime)}
-                      </div>
+                    <div className="mb-4 sm:mb-6 text-center">
                       <div className="flex justify-center mt-4">
-                        {/* Audio waveform animation */}
                         <div className="flex items-end space-x-1 h-8">
                           {[1, 2, 3, 4, 5, 4, 3, 2, 1].map((height, index) => (
                             <div
@@ -1187,48 +1157,42 @@ const Home = () => {
                       </div>
                     </div>
                   )}
-
-                  {/* Error Display */}
                   {error && (
-                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg mx-2 sm:mx-4">
                       <p className="text-sm text-red-600">{error}</p>
                     </div>
                   )}
 
-                  {/* Voice Recording Button - Center */}
-                  <div className="mt-8">
-                    {!isRecording ? (
-                      <button
-                        onClick={startListening}
-                        disabled={
-                          conversationState === "ANALYZING" ||
-                          conversationState === "SPEAKING" ||
-                          !isLoggedIn
-                        }
-                        className="w-20 h-20 bg-gradient-to-r from-red-600 to-amber-600 text-white rounded-full flex items-center justify-center shadow-2xl hover:shadow-3xl transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
-                        style={{
-                          boxShadow:
-                            "0 0 0 4px white, 0 8px 30px rgba(220, 38, 38, 0.3)",
-                        }}
-                      >
-                        <Mic className="w-8 h-8" />
-                      </button>
-                    ) : (
+                  <div className="mt-6 sm:mt-8">
+                    {isRecording || conversationState === "SPEAKING" ? (
                       <button
                         onClick={stopListening}
-                        className="w-20 h-20 bg-red-600 text-white rounded-full flex items-center justify-center shadow-2xl hover:shadow-3xl transition-all hover:scale-110 animate-pulse"
+                        className="w-16 h-16 sm:w-20 sm:h-20 bg-red-600 text-white rounded-full flex items-center justify-center shadow-2xl hover:shadow-3xl transition-all hover:scale-110 animate-pulse"
                         style={{
                           boxShadow:
                             "0 0 0 4px white, 0 8px 30px rgba(220, 38, 38, 0.5)",
                         }}
                       >
-                        <Square className="w-6 h-6" />
+                        <Square className="w-5 h-5 sm:w-6 sm:h-6" />
+                      </button>
+                    ) : (
+                      <button
+                        onClick={startListening}
+                        disabled={
+                          conversationState === "ANALYZING" || !isLoggedIn
+                        }
+                        className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-red-600 to-amber-600 text-white rounded-full flex items-center justify-center shadow-2xl hover:shadow-3xl transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+                        style={{
+                          boxShadow:
+                            "0 0 0 4px white, 0 8px 30px rgba(220, 38, 38, 0.3)",
+                        }}
+                      >
+                        <Mic className="w-6 h-6 sm:w-8 sm:h-8" />
                       </button>
                     )}
                   </div>
 
-                  {/* Instruction Text */}
-                  <div className="mt-8 text-center">
+                  <div className="mt-6 sm:mt-8 text-center px-2">
                     <p className="text-sm text-gray-600 max-w-xs">
                       {!isLoggedIn
                         ? "Vui lòng đăng nhập để sử dụng voice chat"
@@ -1295,3 +1259,4 @@ const Home = () => {
 };
 
 export default Home;
+
