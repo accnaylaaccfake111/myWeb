@@ -200,7 +200,7 @@ const LyricsComposition = ({ isLoggedIn }) => {
                 return;
             }
 
-            if (file.size > 10 * 1024 * 1024) {
+            if (file.size > 1000 * 1024 * 1024) {
                 setError("File không được lớn hơn 10MB");
                 return;
             }
