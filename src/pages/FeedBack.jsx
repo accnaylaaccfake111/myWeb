@@ -394,7 +394,7 @@ const FeedBack = ({ isLoggedIn }) => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
             {/* Feedback Summary */}
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 lg:sticky lg:top-24 h-fit transition-all duration-300 hover:shadow-md">
               <div className="flex items-center gap-3 mb-6">

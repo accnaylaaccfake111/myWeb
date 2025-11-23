@@ -14,7 +14,7 @@ import {
     useVideoFaceSwap,
     useImageClothesSwap,
 } from "../hooks/FaceSwapHook";
-import { ArrowLeft, Download, RotateCw } from 'lucide-react';
+import { ArrowLeft, Download, LogIn, RotateCw, Smile } from "lucide-react";
 
 const FaceSwap = ({ isLoggedIn }) => {
     const [step, setStep] = useState(1);
@@ -408,32 +408,6 @@ const FaceSwap = ({ isLoggedIn }) => {
         </div>
     );
 
-    if (!isLoggedIn && step === 1) {
-        return (
-            <div className="w-full flex items-center justify-center bg-gray-50 px-12 py-6">
-                <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-200 w-full max-w-md">
-                    <div className="text-5xl mb-6 text-red-700 animate-bounce">
-                        😊
-                    </div>
-                    <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">
-                        Vui lòng đăng nhập
-                    </h2>
-                    <p className="text-gray-600 mb-6 text-center">
-                        Bạn cần đăng nhập để truy cập chức năng ghép mặt vui
-                        nhộn
-                    </p>
-                    <Link
-                        to="/login"
-                        state={{ from: "/face-swap" }}
-                        className="block bg-red-700 text-white px-4 py-2 rounded-lg hover:bg-red-800 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105 text-center"
-                    >
-                        Đăng nhập
-                    </Link>
-                </div>
-            </div>
-        );
-    }
-
     return (
         <div className="w-full px-4 sm:px-6 lg:px-12 pt-2 pb-6 bg-gray-50">
             {step !== 1 && (
@@ -480,6 +454,37 @@ const FaceSwap = ({ isLoggedIn }) => {
             {/* Step 1: Upload và giới thiệu */}
             {step === 1 && (
                 <div className="bg-white rounded-xl p-6 sm:p-8 shadow-lg border border-gray-200 max-w-6xl mx-auto">
+                    <p className="text-base text-center sm:text-lg font-semibold text-gray-800 mb-6">
+                        {mode === "video"
+                            ? "Ghép khuôn mặt và trang phục vào video múa của bạn"
+                            : "Ghép trang phục vào ảnh của bạn"}
+                    </p>
+
+                    {/* Chọn chế độ */}
+                    <div className="mb-6">
+                        <div className="flex justify-center gap-4 mb-4">
+                            <button
+                                onClick={() => setMode("video")}
+                                className={`py-2 px-4 rounded-lg font-semibold transition-all ${
+                                    mode === "video"
+                                        ? "bg-red-700 text-white"
+                                        : "bg-gray-200 text-gray-700"
+                                }`}
+                            >
+                                Ghép video
+                            </button>
+                            <button
+                                onClick={() => setMode("image")}
+                                className={`py-2 px-4 rounded-lg font-semibold transition-all ${
+                                    mode === "image"
+                                        ? "bg-red-700 text-white"
+                                        : "bg-gray-200 text-gray-700"
+                                }`}
+                            >
+                                Ghép trang phục
+                            </button>
+                        </div>
+                    </div>
                     <div className="flex flex-col lg:flex-row gap-8">
                         <div className="w-full lg:w-1/2">
                             <div className="h-full flex flex-col gap-6 justify-center">
@@ -526,66 +531,148 @@ const FaceSwap = ({ isLoggedIn }) => {
                                 )}
                             </div>
                         </div>
-                        <div className="w-full lg:w-1/2 text-center">
-                            <p className="text-base sm:text-lg font-semibold text-gray-800 mb-6">
-                                {mode === "video"
-                                    ? "Ghép khuôn mặt và trang phục vào video múa của bạn"
-                                    : "Ghép trang phục vào ảnh của bạn"}
-                            </p>
-
-                            {/* Chọn chế độ */}
-                            <div className="mb-6">
-                                <div className="flex justify-center gap-4 mb-4">
-                                    <button
-                                        onClick={() => setMode("video")}
-                                        className={`py-2 px-4 rounded-lg font-semibold transition-all ${
-                                            mode === "video"
-                                                ? "bg-red-700 text-white"
-                                                : "bg-gray-200 text-gray-700"
-                                        }`}
+                        {!isLoggedIn && step === 1 ? (
+                            <div className="w-full lg:w-1/2 flex items-center justify-center">
+                                <div className="p-8 w-full max-w-md">
+                                    <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">
+                                        Vui lòng đăng nhập
+                                    </h2>
+                                    <p className="text-gray-600 mb-6 text-center">
+                                        Bạn cần đăng nhập để truy cập chức năng
+                                        ghép mặt vui nhộn
+                                    </p>
+                                    <Link
+                                        to="/login"
+                                        state={{ from: "/face-swap" }}
+                                        className="flex justify-center items-center space-x-4 block bg-red-700 text-white px-4 py-4 rounded-lg hover:bg-red-800 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105 text-center"
                                     >
-                                        Ghép video
-                                    </button>
-                                    <button
-                                        onClick={() => setMode("image")}
-                                        className={`py-2 px-4 rounded-lg font-semibold transition-all ${
-                                            mode === "image"
-                                                ? "bg-red-700 text-white"
-                                                : "bg-gray-200 text-gray-700"
-                                        }`}
-                                    >
-                                        Ghép trang phục
-                                    </button>
+                                        <LogIn className="w-5 h-5" />
+                                        <span>Đăng nhập</span>
+                                    </Link>
                                 </div>
                             </div>
-
-                            {mode === "video" ? (
-                                videoState.videoPreview ? (
-                                    <div className="flex flex-col items-center gap-4">
-                                        <div className="bg-gray-100 rounded-lg p-4 sm:p-6 w-full">
-                                            <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2 text-center inline-flex items-center justify-center w-full">
-                                                Xem trước video
+                        ) : (
+                            <div className="w-full lg:w-1/2 text-center">
+                                {mode === "video" ? (
+                                    videoState.videoPreview ? (
+                                        <div className="flex flex-col items-center gap-4">
+                                            <div className="bg-gray-100 rounded-lg p-4 sm:p-6 w-full">
+                                                <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2 text-center inline-flex items-center justify-center w-full">
+                                                    Xem trước video
+                                                    <svg
+                                                        className="h-5 w-5 ml-2 text-red-700"
+                                                        fill="currentColor"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                    </svg>
+                                                </h3>
+                                                <div className="w-full max-w-[95%] aspect-video bg-gray-300 rounded-lg flex items-center justify-center overflow-hidden mx-auto">
+                                                    <video
+                                                        src={
+                                                            videoState.videoPreview
+                                                        }
+                                                        className="w-full h-full object-contain"
+                                                        controls
+                                                    />
+                                                </div>
+                                                <p className="text-sm text-gray-600 mt-2">
+                                                    Đã tải:{" "}
+                                                    {videoState.videoFile
+                                                        ?.name ||
+                                                        "Video từ mô phỏng điệu múa"}
+                                                </p>
+                                            </div>
+                                            <div className="flex flex-wrap justify-center gap-4">
+                                                <label className="cursor-pointer bg-gray-300 text-gray-800 py-3 px-6 rounded-lg hover:bg-gray-400 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 inline-flex items-center justify-center">
+                                                    <svg
+                                                        className="h-5 w-5 mr-2"
+                                                        fill="currentColor"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" />
+                                                    </svg>
+                                                    Tải lại video
+                                                    <input
+                                                        type="file"
+                                                        accept="video/*"
+                                                        className="hidden"
+                                                        onChange={
+                                                            fileHandlers.handleVideoUpload
+                                                        }
+                                                    />
+                                                </label>
+                                                <button
+                                                    onClick={
+                                                        videoAnalysis.handleAnalyzeVideo
+                                                    }
+                                                    className="bg-red-700 text-white py-3 px-6 rounded-lg hover:bg-red-800 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 inline-flex items-center justify-center"
+                                                >
+                                                    <svg
+                                                        className="h-5 w-5 mr-2"
+                                                        fill="currentColor"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                                    </svg>
+                                                    Phân tích video
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="w-full sm:w-80 mx-auto border-2 border-dashed border-gray-300 rounded-lg p-6">
+                                            <h2 className="text-base sm:text-lg font-semibold text-gray-800 mb-4 inline-flex items-center animate-pulse justify-center w-full">
+                                                Tải video múa lên
                                                 <svg
-                                                    className="h-5 w-5 ml-2 text-red-700"
+                                                    className="h-6 w-6 ml-2 text-red-700"
                                                     fill="currentColor"
                                                     viewBox="0 0 24 24"
                                                 >
                                                     <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                                 </svg>
-                                            </h3>
-                                            <div className="w-full max-w-[95%] aspect-video bg-gray-300 rounded-lg flex items-center justify-center overflow-hidden mx-auto">
-                                                <video
-                                                    src={
-                                                        videoState.videoPreview
+                                            </h2>
+                                            <label className="cursor-pointer bg-red-700 text-white py-3 px-3 rounded-lg hover:bg-red-800 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 inline-flex items-center justify-center w-full">
+                                                Chọn video
+                                                <input
+                                                    type="file"
+                                                    accept="video/*"
+                                                    className="hidden"
+                                                    onChange={
+                                                        fileHandlers.handleVideoUpload
                                                     }
+                                                />
+                                            </label>
+                                            <p className="text-xs sm:text-sm text-gray-600 mt-2">
+                                                Định dạng hỗ trợ: MP4, AVI
+                                            </p>
+                                        </div>
+                                    )
+                                ) : imageState.imagePreview ? (
+                                    <div className="flex flex-col items-center gap-4">
+                                        <div className="bg-gray-100 rounded-lg p-4 sm:p-6 w-full">
+                                            <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2 text-center inline-flex items-center justify-center w-full">
+                                                Xem trước ảnh
+                                                <svg
+                                                    className="h-5 w-5 ml-2 text-red-700"
+                                                    fill="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                </svg>
+                                            </h3>
+                                            <div className="w-full max-w-[95%] aspect-square bg-gray-300 rounded-lg flex items-center justify-center overflow-hidden mx-auto">
+                                                <img
+                                                    src={
+                                                        imageState.imagePreview
+                                                    }
+                                                    alt="Xem trước ảnh"
                                                     className="w-full h-full object-contain"
-                                                    controls
                                                 />
                                             </div>
                                             <p className="text-sm text-gray-600 mt-2">
                                                 Đã tải:{" "}
-                                                {videoState.videoFile?.name ||
-                                                    "Video từ mô phỏng điệu múa"}
+                                                {imageState.imageFile?.name ||
+                                                    "Ảnh đã tải lên"}
                                             </p>
                                         </div>
                                         <div className="flex flex-wrap justify-center gap-4">
@@ -597,97 +684,38 @@ const FaceSwap = ({ isLoggedIn }) => {
                                                 >
                                                     <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" />
                                                 </svg>
-                                                Tải lại video
+                                                Tải lại ảnh
                                                 <input
                                                     type="file"
-                                                    accept="video/*"
+                                                    accept="image/*"
                                                     className="hidden"
                                                     onChange={
-                                                        fileHandlers.handleVideoUpload
+                                                        fileHandlers.handleImageUpload
                                                     }
                                                 />
                                             </label>
                                             <button
-                                                onClick={
-                                                    videoAnalysis.handleAnalyzeVideo
-                                                }
+                                                onClick={() => setStep(2)}
                                                 className="bg-red-700 text-white py-3 px-6 rounded-lg hover:bg-red-800 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 inline-flex items-center justify-center"
                                             >
-                                                <svg
-                                                    className="h-5 w-5 mr-2"
-                                                    fill="currentColor"
-                                                    viewBox="0 0 24 24"
-                                                >
-                                                    <path d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                                </svg>
-                                                Phân tích video
+                                                Tiếp tục chọn trang phục
                                             </button>
                                         </div>
                                     </div>
                                 ) : (
                                     <div className="w-full sm:w-80 mx-auto border-2 border-dashed border-gray-300 rounded-lg p-6">
                                         <h2 className="text-base sm:text-lg font-semibold text-gray-800 mb-4 inline-flex items-center animate-pulse justify-center w-full">
-                                            Tải video múa lên
+                                            Tải ảnh lên
                                             <svg
                                                 className="h-6 w-6 ml-2 text-red-700"
                                                 fill="currentColor"
                                                 viewBox="0 0 24 24"
                                             >
-                                                <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                             </svg>
                                         </h2>
                                         <label className="cursor-pointer bg-red-700 text-white py-3 px-3 rounded-lg hover:bg-red-800 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 inline-flex items-center justify-center w-full">
-                                            Chọn video
-                                            <input
-                                                type="file"
-                                                accept="video/*"
-                                                className="hidden"
-                                                onChange={
-                                                    fileHandlers.handleVideoUpload
-                                                }
-                                            />
-                                        </label>
-                                        <p className="text-xs sm:text-sm text-gray-600 mt-2">
-                                            Định dạng hỗ trợ: MP4, AVI
-                                        </p>
-                                    </div>
-                                )
-                            ) : imageState.imagePreview ? (
-                                <div className="flex flex-col items-center gap-4">
-                                    <div className="bg-gray-100 rounded-lg p-4 sm:p-6 w-full">
-                                        <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2 text-center inline-flex items-center justify-center w-full">
-                                            Xem trước ảnh
-                                            <svg
-                                                className="h-5 w-5 ml-2 text-red-700"
-                                                fill="currentColor"
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                            </svg>
-                                        </h3>
-                                        <div className="w-full max-w-[95%] aspect-square bg-gray-300 rounded-lg flex items-center justify-center overflow-hidden mx-auto">
-                                            <img
-                                                src={imageState.imagePreview}
-                                                alt="Xem trước ảnh"
-                                                className="w-full h-full object-contain"
-                                            />
-                                        </div>
-                                        <p className="text-sm text-gray-600 mt-2">
-                                            Đã tải:{" "}
-                                            {imageState.imageFile?.name ||
-                                                "Ảnh đã tải lên"}
-                                        </p>
-                                    </div>
-                                    <div className="flex flex-wrap justify-center gap-4">
-                                        <label className="cursor-pointer bg-gray-300 text-gray-800 py-3 px-6 rounded-lg hover:bg-gray-400 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 inline-flex items-center justify-center">
-                                            <svg
-                                                className="h-5 w-5 mr-2"
-                                                fill="currentColor"
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" />
-                                            </svg>
-                                            Tải lại ảnh
+                                            Chọn ảnh
                                             <input
                                                 type="file"
                                                 accept="image/*"
@@ -697,61 +725,31 @@ const FaceSwap = ({ isLoggedIn }) => {
                                                 }
                                             />
                                         </label>
-                                        <button
-                                            onClick={() => setStep(2)}
-                                            className="bg-red-700 text-white py-3 px-6 rounded-lg hover:bg-red-800 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 inline-flex items-center justify-center"
-                                        >
-                                            Tiếp tục chọn trang phục
-                                        </button>
+                                        <p className="text-xs sm:text-sm text-gray-600 mt-2">
+                                            Định dạng hỗ trợ: JPG, PNG
+                                        </p>
                                     </div>
-                                </div>
-                            ) : (
-                                <div className="w-full sm:w-80 mx-auto border-2 border-dashed border-gray-300 rounded-lg p-6">
-                                    <h2 className="text-base sm:text-lg font-semibold text-gray-800 mb-4 inline-flex items-center animate-pulse justify-center w-full">
-                                        Tải ảnh lên
+                                )}
+
+                                <div className="mt-6">
+                                    <button
+                                        onClick={() =>
+                                            navigate("/dancing-simulation")
+                                        }
+                                        className="bg-gray-300 text-gray-800 py-3 px-6 rounded-lg hover:bg-gray-400 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 inline-flex items-center justify-center"
+                                    >
                                         <svg
-                                            className="h-6 w-6 ml-2 text-red-700"
+                                            className="h-5 w-5 mr-2"
                                             fill="currentColor"
                                             viewBox="0 0 24 24"
                                         >
-                                            <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
                                         </svg>
-                                    </h2>
-                                    <label className="cursor-pointer bg-red-700 text-white py-3 px-3 rounded-lg hover:bg-red-800 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 inline-flex items-center justify-center w-full">
-                                        Chọn ảnh
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            className="hidden"
-                                            onChange={
-                                                fileHandlers.handleImageUpload
-                                            }
-                                        />
-                                    </label>
-                                    <p className="text-xs sm:text-sm text-gray-600 mt-2">
-                                        Định dạng hỗ trợ: JPG, PNG
-                                    </p>
+                                        Quay lại mô phỏng điệu múa
+                                    </button>
                                 </div>
-                            )}
-
-                            <div className="mt-6">
-                                <button
-                                    onClick={() =>
-                                        navigate("/dancing-simulation")
-                                    }
-                                    className="bg-gray-300 text-gray-800 py-3 px-6 rounded-lg hover:bg-gray-400 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 inline-flex items-center justify-center"
-                                >
-                                    <svg
-                                        className="h-5 w-5 mr-2"
-                                        fill="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
-                                    </svg>
-                                    Quay lại mô phỏng điệu múa
-                                </button>
                             </div>
-                        </div>
+                        )}
                     </div>
                 </div>
             )}

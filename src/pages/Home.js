@@ -718,7 +718,7 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+    <div className="min-h-full bg-gradient-to-b from-slate-50 to-white">
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="max-w-[95rem] mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-16">
@@ -1209,7 +1209,7 @@ const Home = () => {
       </div>
 
       {/* Thêm CSS animations */}
-      <style jsx>{`
+      <style>{`
         @keyframes fadeIn {
           from {
             opacity: 0;
@@ -1259,4 +1259,3 @@ const Home = () => {
 };
 
 export default Home;
-

@@ -219,7 +219,7 @@ const PageNotFound = () => {
             </div>
 
             {/* Custom animations in Tailwind */}
-            <style jsx>{`
+            <style>{`
                 @keyframes float {
                     0%,
                     100% {
