@@ -13,7 +13,7 @@ import { Link } from "react-router-dom";
 
 const FeedBack = ({ isLoggedIn }) => {
   const [feedbackData, setFeedbackData] = useState({
-    averageScore: 5, // Mặc định 5 sao
+    averageScore: 4.8,
     totalFeedBack: 0,
     ratingDistribution: [0, 0, 0, 0, 0],
     countFiveStars: 0,
@@ -42,24 +42,33 @@ const FeedBack = ({ isLoggedIn }) => {
   const [ratingFillter, setRatingFillter] = useState(null);
 
   // ==========================================
-  // 1. FAKE SỐ LIỆU TỔNG QUAN (SUMMARY)
+  // 1. FAKE SỐ LIỆU TỔNG QUAN (CHÂN THỰC VỚI 4.8)
   // ==========================================
   const fetchFeedbackSummary = async () => {
     try {
-      // Vẫn gọi API để tránh lỗi hệ thống, nhưng không dùng data thống kê của nó
       await feedbackService.getFeedbackSummary().catch(() => {});
 
-      // CẤU HÌNH SỐ LIỆU GIẢ TẠI ĐÂY
-      const FAKE_TOTAL = 2568; // Số lượng đánh giá mong muốn
+      // CẤU HÌNH SỐ LIỆU GIẢ (AUTHENTIC MIX)
+      const count5 = 2150;
+      const count4 = 350;
+      const count3 = 45;
+      const count2 = 15;
+      const count1 = 8;
+      
+      const FAKE_TOTAL = count5 + count4 + count3 + count2 + count1;
+      
+      // Tính điểm trung bình thực tế dựa trên số liệu giả
+      const totalScore = (count5 * 5) + (count4 * 4) + (count3 * 3) + (count2 * 2) + (count1 * 1);
+      const averageScore = totalScore / FAKE_TOTAL;
 
       const fakeData = {
-        averageScore: 5.0, // Điểm trung bình tuyệt đối
+        averageScore: averageScore, // Sẽ ra khoảng 4.8
         totalFeedBack: FAKE_TOTAL,
-        countFiveStars: FAKE_TOTAL, // Dồn hết vào 5 sao
-        countFourStars: 0,
-        countThreeStars: 0,
-        countTwoStars: 0,
-        countOneStar: 0,
+        countFiveStars: count5,
+        countFourStars: count4,
+        countThreeStars: count3,
+        countTwoStars: count2,
+        countOneStar: count1,
       };
 
       setFeedbackData((prev) => ({
@@ -67,7 +76,6 @@ const FeedBack = ({ isLoggedIn }) => {
         ...fakeData,
       }));
 
-      // Tính toán số trang dựa trên số liệu giả để hiện thanh phân trang dài
       const totalPages = feedbackService.calculateTotalPages(
         FAKE_TOTAL,
         itemsPerPage
@@ -78,14 +86,24 @@ const FeedBack = ({ isLoggedIn }) => {
     }
   };
 
+  // Hàm helper để random rating dựa trên xác suất (để khớp với thống kê 4.8)
+  const getRandomAuthenticRating = () => {
+    const rand = Math.random() * 100;
+    // Tỷ lệ xuất hiện: 5*(82%), 4*(14%), 3*(2%), 2*(1%), 1*(1%)
+    if (rand < 82) return 5; 
+    if (rand < 96) return 4;
+    if (rand < 98) return 3;
+    if (rand < 99) return 2;
+    return 1;
+  };
+
   // ==========================================
-  // 2. FETCH FEEDBACK VÀ FAKE 5 SAO TỪNG ITEM
+  // 2. FETCH FEEDBACK VÀ RANDOM SAO CHO CHÂN THỰC
   // ==========================================
   const fetchRecentFeedbacks = useCallback(
     async (page, itemsPerPage, useCache = true) => {
       const cacheKey = `${page}-${itemsPerPage}`;
 
-      // LUÔN sử dụng cache nếu có
       if (useCache && feedbacksCache.has(cacheKey)) {
         const cachedData = feedbacksCache.get(cacheKey);
         setRecentFeedbacks(cachedData.feedbacks);
@@ -103,27 +121,29 @@ const FeedBack = ({ isLoggedIn }) => {
           ratingFillter
         );
 
-        // --- BẮT ĐẦU LOGIC FAKE 5 SAO ---
-        // Duyệt qua tất cả comment lấy về và sửa rating thành 5
-        const fakeFiveStarFeedbacks = response.feedbacks.map((item) => ({
-          ...item,
-          rating: 5, // Ép cứng 5 sao bất kể người dùng đánh giá gì
-        }));
+        // --- LOGIC FAKE SAO NGẪU NHIÊN ---
+        const fakeAuthenticFeedbacks = response.feedbacks.map((item) => {
+            // Giữ lại ID để đảm bảo random nhất quán nếu cần, 
+            // nhưng ở đây ta random mỗi khi fetch mới để tạo độ đa dạng
+            return {
+                ...item,
+                rating: getRandomAuthenticRating(), 
+            };
+        });
         // --- KẾT THÚC LOGIC FAKE ---
 
-        // Lưu vào cache dữ liệu đã fake
         const cacheData = {
-          feedbacks: fakeFiveStarFeedbacks,
+          feedbacks: fakeAuthenticFeedbacks,
           totalPages: response.totalPages,
           totalElements: response.totalElements,
           timestamp: Date.now(),
         };
 
         setFeedbacksCache((prev) => new Map(prev.set(cacheKey, cacheData)));
-        setRecentFeedbacks(fakeFiveStarFeedbacks);
+        setRecentFeedbacks(fakeAuthenticFeedbacks);
 
         setIsAnimating(false);
-        return { ...response, feedbacks: fakeFiveStarFeedbacks };
+        return { ...response, feedbacks: fakeAuthenticFeedbacks };
       } catch (error) {
         console.error("Error in fetchRecentFeedbacks:", error);
         setIsAnimating(false);
@@ -133,7 +153,7 @@ const FeedBack = ({ isLoggedIn }) => {
     [feedbacksCache, totalPages, itemsPerPage, ratingFillter]
   );
 
-  // Preload trang
+  // Preload trang (Cũng cần fake rating khi preload)
   const preloadPage = useCallback(
     async (page) => {
       if (page < 1 || page > totalPages || preloadedPages.has(page)) {
@@ -153,14 +173,13 @@ const FeedBack = ({ isLoggedIn }) => {
           ratingFillter
         );
 
-        // Cũng phải fake 5 sao cho preload để đồng bộ
-        const fakeFiveStarFeedbacks = response.feedbacks.map((item) => ({
+        const fakeAuthenticFeedbacks = response.feedbacks.map((item) => ({
           ...item,
-          rating: 5,
+          rating: getRandomAuthenticRating(),
         }));
 
         const cacheData = {
-          feedbacks: fakeFiveStarFeedbacks,
+          feedbacks: fakeAuthenticFeedbacks,
           totalPages: response.totalPages,
           totalElements: response.totalElements,
           timestamp: Date.now(),
@@ -186,7 +205,7 @@ const FeedBack = ({ isLoggedIn }) => {
   // Cleanup cache
   const cleanupCache = useCallback(() => {
     const now = Date.now();
-    const CACHE_DURATION = 10 * 60 * 1000; // 10 phút
+    const CACHE_DURATION = 10 * 60 * 1000; 
 
     setFeedbacksCache((prev) => {
       const newCache = new Map();
@@ -215,7 +234,6 @@ const FeedBack = ({ isLoggedIn }) => {
         rating: 5,
       });
 
-      // Clear cache và reload
       setFeedbacksCache(new Map());
       setPreloadedPages(new Set());
       await fetchFeedbackSummary();
@@ -238,28 +256,23 @@ const FeedBack = ({ isLoggedIn }) => {
     }
   }, [recentFeedbacks, isAnimating]);
 
-  // Preload khi currentPage thay đổi
   useEffect(() => {
     preloadAdjacentPages();
   }, [currentPage, preloadAdjacentPages]);
 
-  // Cleanup cache định kỳ
   useEffect(() => {
     const interval = setInterval(cleanupCache, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, [cleanupCache]);
 
-  // Fetch summary on mount
   useEffect(() => {
     fetchFeedbackSummary();
   }, []);
 
-  // Fetch feedbacks khi currentPage hoặc itemsPerPage thay đổi
   useEffect(() => {
     fetchRecentFeedbacks(currentPage, itemsPerPage, true);
   }, [currentPage, itemsPerPage, fetchRecentFeedbacks]);
 
-  // Xử lý chuyển trang với cache
   const goToPage = (page) => {
     if (page < 1 || page > totalPages || page === currentPage || isAnimating)
       return;
@@ -349,7 +362,6 @@ const FeedBack = ({ isLoggedIn }) => {
     return pages;
   };
 
-  // Render stars for rating
   const renderStars = (rating, size = "sm") => {
     const sizeClasses = {
       sm: "w-4 h-4",
@@ -369,7 +381,6 @@ const FeedBack = ({ isLoggedIn }) => {
     ));
   };
 
-  // Format date
   const formatDate = (dateString) => {
     if (!dateString) return "Không xác định";
     try {
@@ -383,9 +394,7 @@ const FeedBack = ({ isLoggedIn }) => {
     }
   };
 
-  // Tính phần trăm cho rating distribution
   const getRatingPercentage = (count) => {
-    // Luôn chia cho tổng giả để hiển thị thanh % chính xác
     const total = feedbackData.totalFeedBack || 1;
     return Math.round((count / total) * 100);
   };
@@ -395,7 +404,6 @@ const FeedBack = ({ isLoggedIn }) => {
 
   return (
     <div className="bg-gradient-to-b from-slate-50 to-white">
-      {/* Feedback Section */}
       <section className="py-12 bg-slate-50">
         <div className="max-w-[95rem] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
@@ -459,7 +467,6 @@ const FeedBack = ({ isLoggedIn }) => {
                     <button
                       type="button"
                       key={rating}
-                      // Disable click filter vì đã fake dữ liệu
                       className={`w-full flex items-center gap-3 group hover:bg-gray-50 p-2 rounded-lg transition-all duration-300 transform hover:scale-[1.02] cursor-default`}
                     >
                       <div className="flex items-center gap-2 w-10">
@@ -506,7 +513,6 @@ const FeedBack = ({ isLoggedIn }) => {
               </div>
 
               <div className="flex-1 flex flex-col space-y-5">
-                {/* Rating Selection */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-3">
                     Đánh giá của bạn *
@@ -527,12 +533,11 @@ const FeedBack = ({ isLoggedIn }) => {
                             ? "rounded-l-xl border-l-2"
                             : rating === 5 && "rounded-r-xl border-r-2"
                         }
-                                                                        ${
-                                                                          rating <=
-                                                                          newFeedback.rating
-                                                                            ? "bg-amber-50 shadow-lg scale-105"
-                                                                            : "bg-gray-50 hover:border-amber-200 hover:shadow-md"
-                                                                        }`}
+                        ${
+                          rating <= newFeedback.rating
+                            ? "bg-amber-50 shadow-lg scale-105"
+                            : "bg-gray-50 hover:border-amber-200 hover:shadow-md"
+                        }`}
                       >
                         <div className="flex flex-col items-center gap-1">
                           <Star
@@ -575,7 +580,6 @@ const FeedBack = ({ isLoggedIn }) => {
                   )}
                 </div>
 
-                {/* Submit Button */}
                 {isLoggedIn ? (
                   <button
                     onClick={submitFeedback}
@@ -610,7 +614,7 @@ const FeedBack = ({ isLoggedIn }) => {
               </div>
             </div>
           </div>
-          {/* Recent Feedbacks */}
+          
           <div className="space-y-6">
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 transition-all duration-300 hover:shadow-md">
               <div className="flex items-center justify-between mb-6">
@@ -625,7 +629,6 @@ const FeedBack = ({ isLoggedIn }) => {
                 </div>
               </div>
 
-              {/* Container chính cho feedbacks với hiệu ứng fade + scale */}
               <div className={`relative mb-6`}>
                 <div
                   className={`grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4 transition-all duration-500 ease-out ${
@@ -653,7 +656,6 @@ const FeedBack = ({ isLoggedIn }) => {
                   )}
                 </div>
 
-                {/* Loading overlay chỉ hiển thị khi thực sự loading từ API */}
                 {isAnimating && !isCurrentPageCached && (
                   <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 backdrop-blur-sm">
                     <div className="flex flex-col items-center gap-3">
@@ -668,10 +670,8 @@ const FeedBack = ({ isLoggedIn }) => {
                 )}
               </div>
 
-              {/* Phân trang */}
               {totalPages > 1 && (
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-gray-200">
-                  {/* Thông tin trang hiện tại */}
                   <div className="text-sm text-gray-600 transition-all duration-300">
                     Trang <span className="font-medium">{currentPage}</span> /{" "}
                     <span className="font-medium">{totalPages}</span>
@@ -696,9 +696,7 @@ const FeedBack = ({ isLoggedIn }) => {
                     đánh giá
                   </div>
 
-                  {/* Điều khiển phân trang */}
                   <div className="flex items-center gap-3">
-                    {/* Nút trang trước */}
                     <button
                       onClick={prevPage}
                       disabled={currentPage === 1 || isAnimating}
@@ -708,10 +706,8 @@ const FeedBack = ({ isLoggedIn }) => {
                       <span>Trước</span>
                     </button>
 
-                    {/* Các số trang */}
                     <div className="flex gap-1">{renderPageNumbers()}</div>
 
-                    {/* Nút trang tiếp theo */}
                     <button
                       onClick={nextPage}
                       disabled={currentPage === totalPages || isAnimating}
@@ -722,7 +718,6 @@ const FeedBack = ({ isLoggedIn }) => {
                     </button>
                   </div>
 
-                  {/* Chọn số item mỗi trang */}
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-gray-600">Mỗi trang:</span>
                     <select
@@ -752,7 +747,6 @@ const FeedBack = ({ isLoggedIn }) => {
   );
 };
 
-// Component cho feedback card
 const FeedbackCard = ({ feedback, renderStars, formatDate, index }) => (
   <div
     className="group p-4 rounded-lg border border-gray-100 hover:border-red-200 hover:bg-red-50 transition-all duration-500 transform hover:scale-[1.02] hover:shadow-lg"
@@ -761,7 +755,6 @@ const FeedbackCard = ({ feedback, renderStars, formatDate, index }) => (
     }}
   >
     <div className="flex items-start gap-4">
-      {/* Avatar với animation */}
       <div className="flex-shrink-0">
         {feedback.avatar ? (
           <img
@@ -805,7 +798,6 @@ const FeedbackCard = ({ feedback, renderStars, formatDate, index }) => (
   </div>
 );
 
-// Component cho cột trống
 const EmptyColumn = () => (
   <div className="text-center text-gray-400 py-12 transition-all duration-500">
     <MessageCircle className="w-12 h-12 mx-auto mb-3 opacity-50 transition-transform duration-500 hover:scale-110" />
