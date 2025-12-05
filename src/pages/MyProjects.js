@@ -61,7 +61,7 @@ const PROJECT_CONFIG = {
         bgColor:
             "bg-gradient-to-br from-amber-50 to-yellow-50 border-amber-200",
         icon: <Music className="w-5 h-5" />,
-        link: "/sheet-music",
+        link: "/lyrics-composition",
     },
     CLOTH_SWAP: {
         name: "Ghép Trang Phục",
