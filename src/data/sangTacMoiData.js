@@ -390,6 +390,57 @@ Cái kể - Con xô: Chúc rượu Phú Lễ …., năm nào cũng tăng
   },
   {
     id: 10,
+    title: "Vè các loại Dừa",
+    content: `**(Tự tin, cảm xúc)**  
+(Nghệ nhân đờn cò dạo đầu, trống phách gõ theo, kết thúc phần dạo đầu, cái kể vào nhịp)  
+**Cái kể**: Bến Tre nước ngọt lắm dừa
+Ruộng vườn màu mỡ biển thừa cá tôm
+Sau đây tôi xin kể các loại dừa
+Để bà con cùng nghe thử 
+**Con xô**: Phải vì lòng Bác thanh (ớ) cao…  
+**Cái kể**: Phải vì (ờ) lòng Bác (ớ) thanh (ớ) cao  
+Nên hoa đất nước tìm vào vây (ớ) quanh  
+**Con xô**: Gối non sông một giấc (ớ) lành …  
+**Cái kể**: Gối non (a) sông một (ơ) giấc (ơ) lành  
+Chòm râu (Bác) trắng, thoáng rung rinh (ơ) gió đèo  
+**Con xô**: Nghe (ơ) từng tiếng suối trong (ớ) veo  
+**Cái kể**: Nghe (ơ) từng…tiếng suối (..ớ) trong (ớ) veo  
+Phập phồng Bác (ơ) thở (ơ)..nhịp (ơ) đều tim con  
+**Con xô**: Lặng (ớ) im giấc Bác đang (ơ) tròn  
+**Cái kể**: Lặng im (ơ..) giấc Bác (ớ) đang (ơ) tròn  
+Ước gì được (ơ) Bác vẫy con (ờ…) đến gần  
+**Con xô**: Một lần thôi chỉ một (ơ..) lần  
+**Cái kể**: Một lần (ơ…) thôi chỉ (ơ) một lần  
+Như miền Nam chỉ trong (ơ) ngần ấy thôi!  
+**Con xô**: Chân con bước chậm lại rồi  
+**Cái kể**: Chân con (ơ..) bước chậm (ớ..) lại (ơ) rồi  
+Muốn dừng bên Bác, nghe (ơ) lời Bác khuyên  
+**Con xô**: Sẽ sàng sợ động giấc hiền  
+**Cái kể**: Sẽ (ơ) sàng (ơ) sợ động (ơ) giấc (ơ) hiền  
+Bác vừa ngủ đó, mơ (ớ) miền Nam (…) xa  
+**Con xô**: Mơ (ớ) ngày toàn thắng (ớ) về (ơ) ta  
+**Cái kể**: Mơ (ơ) ngày (ờ) toàn thắng (ớ) về (ế) ta  
+Bác đi thăm hỏi đường (…ớ) xa Bác (…) mừng  
+**Con xô**: Bồi hồi con bước (ớ).., rưng (ớ) rưng  
+**Cái kể**: Bồi hồi (….) con bước (ớ) rưng (ớ) rưng  
+Thương ngày gian khổ (ố), núi (úi) rừng (ừng)- Bác (ớ) đi  
+**Con xô**: Xa nơi Bác nghỉ, con về  
+**Cái kể**: Xa nơi (ơ) Bác nghỉ (…ớ), con về  
+Ngoái nhìn Lăng (Bác), mỗi bước đi chẳng đành  
+Cái kể - Con xô: Ngoái nhìn Lăng (Bác),…. chẳng (ơ) đành… bước (ớ) đi.  
+
+**Mốc thời gian**: Sáng tác tháng 12/1976, được ghi nhận trong cuộc khảo sát từ năm 2014.`,
+    image: vienglangbac,
+    year: "2017",
+    type: "Sáng tác mới",
+    icon: "🎶",
+    description:
+      "Bài hát do Lê Hoàng Dũng sáng tác, phát triển theo điệu lý Mười hai tháng, bày tỏ lòng kính trọng và xúc động khi viếng lăng Bác.",
+    modernDevelopment:
+      "Được biểu diễn trong các dịp lễ hội và sự kiện tưởng niệm tại Phú Lễ.",
+  },
+  {
+    id: 11,
     title: "Vĩnh Long Ngàn Xuân",
     content: `**Cái kể**: Cửu Long miền đất chín rồng
 Mêkông chín nhánh con sông xuôi dòng

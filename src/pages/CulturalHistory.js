@@ -5,7 +5,19 @@ import culturalForms from "../data/culturalData";
 import choiXuanAudio from "../assets/audio/choixuan.mp3";
 import giaTuAudio from "../assets/audio/giatu.mp3";
 import vinhLongNganXuanAudio from "../assets/audio/VinhLongNganXuan.mp3";
-import lyDauCauDaiAudio from "../assets/audio/lydaucaudai.mp3";
+import lyDauCauDaiAudio from "../assets/audio/lydaucaudai.mp3"; 
+import ruocXuan from "../assets/audio/ruocxuan.mp3";
+import coiNam from "../assets/audio/coinam.mp3";
+import danBuaCuaDong from "../assets/audio/danbuacuadong.mp3";
+import danBuaCuaGiua from "../assets/audio/danbuacuagiua.mp3";
+import khaiMon from "../assets/audio/khaimon.mp3";
+import lyDauCauVan from "../assets/audio/lydaucauvan.mp3"
+import lyMuoiHaiThang from "../assets/audio/lymuoihaithang.mp3"
+import moCuaRao from "../assets/audio/mocuarao.mp3"
+import moNgo from "../assets/audio/mongo.mp3"
+import tienSu from "../assets/audio/tiensu.mp3"
+import veCacLoaiDua from "../assets/audio/vecacloaidua.mp3"
+import xocQuach from "../assets/audio/xocquach.mp3"
 
 const CulturalHistory = () => {
     const [filter, setFilter] = useState("Tất cả");
@@ -43,6 +55,18 @@ const CulturalHistory = () => {
         "Chơi xuân": choiXuanAudio,
         "Vĩnh Long Ngàn Xuân": vinhLongNganXuanAudio,
         "Lý Đầu cầu dài": lyDauCauDaiAudio,
+        "Rước xuân": ruocXuan,
+        "Cõi Nam": coiNam,
+        "Dán bùa cửa Đông": danBuaCuaDong,
+        "Dán bùa cửa giữa": danBuaCuaGiua,
+        "Khai môn": khaiMon,
+        "Lý Đầu cầu vắn": lyDauCauVan,
+        "Lý Mười hai tháng": lyMuoiHaiThang,
+        "Mở cửa rào": moCuaRao,   
+        "Mở ngõ": moNgo,
+        "Tiên sư": tienSu, 
+        "Xốc quách": xocQuach,
+        "Vè các loại Dừa": veCacLoaiDua,
     };
 
     const hatSacBuaForms = culturalForms.filter(
@@ -438,7 +462,7 @@ const CulturalHistory = () => {
                             style={{ animationDelay }}
                         >
                             <span className="text-blue-600 font-semibold">
-                                Con xô:
+                                Con xô
                             </span>
                             <span className="text-gray-600">
                                 {line.slice(10)}
