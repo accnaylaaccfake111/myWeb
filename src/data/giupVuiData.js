@@ -15,6 +15,38 @@ import chucnghethoho from "../assets/img/chucnghethoho.png";
 import chucnghethomoc from "../assets/img/chucnghethomoc.png";
 import chucnghethoduong from "../assets/img/chucnghethoduong.png";
 import lydaucauvan from "../assets/img/lydaucauvan.png";
+import page341 from "../assets/img/pages/341.jpg" //chuc nghe lam ruong
+import page342 from "../assets/img/pages/342.jpg" //chuc nghe lam ruong
+import page343 from "../assets/img/pages/343.jpg" //chuc nghe tho moc
+import page344 from "../assets/img/pages/344.jpg" //chuc nghe tho ho
+import page345 from "../assets/img/pages/345.jpg" //chuc nghe tho ho
+import page346 from "../assets/img/pages/346.jpg" //ve con ca
+import page347 from "../assets/img/pages/347.jpg" //ve con ca
+import page348 from "../assets/img/pages/348.jpg" //ve con ca
+import page349 from "../assets/img/pages/349.jpg" //ve con ca
+import page350 from "../assets/img/pages/350.jpg" //ve con ca
+import page351 from "../assets/img/pages/351.jpg" //ve con ca
+import page352 from "../assets/img/pages/352.jpg" //ve con ca
+import page353 from "../assets/img/pages/353.jpg" //ve con ca
+import page354 from "../assets/img/pages/354.jpg" //ve con ca
+import page355 from "../assets/img/pages/355.jpg" //ly lo tho
+import page356 from "../assets/img/pages/356.jpg" //ly lo tho
+import page357 from "../assets/img/pages/356.jpg" //ly lo tho
+import page358 from "../assets/img/pages/358.jpg" //ly 12 thang
+import page359 from "../assets/img/pages/359.jpg" //ly 12 thang
+import page360 from "../assets/img/pages/360.jpg" //ly 12 thang
+import page361 from "../assets/img/pages/361.jpg" //ly 12 thang
+import page362 from "../assets/img/pages/362.jpg" //ly 12 thang
+import page363 from "../assets/img/pages/363.jpg" //ly 12 thang
+import page364 from "../assets/img/pages/364.jpg" //ly dau cau
+import page365 from "../assets/img/pages/365.jpg" //ly dau cau
+import page366 from "../assets/img/pages/366.jpg" //ly dau cau
+import page367 from "../assets/img/pages/367.jpg" //ly dau cau
+import page368 from "../assets/img/pages/368.jpg" //ly dau cau
+import page369 from "../assets/img/pages/369.jpg" //ly dau cau
+import page370 from "../assets/img/pages/370.jpg" //ke chuyen chien thang phu le
+import page371 from "../assets/img/pages/371.jpg" //ke chuyen chien thang phu le
+import page372 from "../assets/img/pages/372.jpg" //ke chuyen chien thang phu le
 
 const giupVuiData = [
   {

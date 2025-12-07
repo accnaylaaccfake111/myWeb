@@ -13,7 +13,8 @@ import danbuacuanam from "../assets/img/danbuacuanam.png";
 import danbuacuatay from "../assets/img/danbuacuatay.png";
 import xocquach from "../assets/img/xocquach.png";
 import truta from "../assets/img/truta.png";
-import page339 from "../assets/img/pages/339.jpg";
+import page339 from "../assets/img/pages/339.jpg"; //mo cua rao
+import page340 from "../assets/img/pages/340.jpg"; //mo ngo
 
 const nghiLeData = [
   {
