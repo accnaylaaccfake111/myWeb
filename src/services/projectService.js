@@ -12,7 +12,7 @@ export const projectService = {
             headers: {
                 Authorization: `Bearer ${token}`,
                 Accept: "application/json",
-                "ngrok-skip-browser-warning": true,
+                "ngrok-skip-browser-warning": "true",
             },
         });
         const result = await response.json();
@@ -28,7 +28,7 @@ export const projectService = {
             headers: {
                 Authorization: `Bearer ${token}`,
                 Accept: "application/json",
-                "ngrok-skip-browser-warning": true,
+                "ngrok-skip-browser-warning": "true",
             },
         });
         const result = await response.json();
@@ -40,51 +40,38 @@ export const projectService = {
 
     // Sheet Music Projects
     async fetchSheetMusicProjects() {
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/sheets`, {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: "application/json",
-                    "ngrok-skip-browser-warning": true,
-                },
-            });
-            if (response.data.success) {
-                return response.data.data;
-            }
-            throw new Error(
-                response.data.message || "Lỗi khi tải dự án sáng tác bài hát",
-            );
-        } catch (error) {
-            throw new Error(
-                error.response?.data?.message ||
-                    "Lỗi khi tải dự án sáng tác bài hát",
-            );
-        }
+        const token = storage.getAccessToken();
+        const response = await fetch(`${API_BASE_URL}/api/sheets`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: "application/json",
+                "ngrok-skip-browser-warning": "true",
+            },
+        });
+        const result = await response.json();
+        if (result.success) return result.data;
+        throw new Error(
+            result.message || "Lỗi khi tải dự án sáng tác bài hát",
+        );
     },
 
     // Face Swap Projects
     async fetchFaceSwapProjects() {
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/face-swap`, {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: "application/json",
-                    "ngrok-skip-browser-warning": true,
-                },
-            });
-            if (response.data.success) {
-                return response.data.data;
-            }
-            throw new Error(
-                response.data.message || "Lỗi khi tải dự án ghép mặt",
-            );
-        } catch (error) {
-            throw new Error(
-                error.response?.data?.message || "Lỗi khi tải dự án ghép mặt",
-            );
-        }
+        const token = storage.getAccessToken();
+        const response = await fetch(`${API_BASE_URL}/api/face-swap`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: "application/json",
+                "ngrok-skip-browser-warning": "true",
+            },
+        });
+        const result = await response.json();
+        if (result.success) return result.data;
+        throw new Error(
+            result.message || "Lỗi khi tải dự án ghép mặt",
+        );
     },
 
     // Sheet Music Detail
