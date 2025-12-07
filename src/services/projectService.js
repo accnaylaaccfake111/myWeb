@@ -41,7 +41,14 @@ export const projectService = {
     // Sheet Music Projects
     async fetchSheetMusicProjects() {
         try {
-            const response = await api.get("/sheets");
+            const response = await fetch(`${API_BASE_URL}/api/sheets`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: "application/json",
+                    "ngrok-skip-browser-warning": true,
+                },
+            });
             if (response.data.success) {
                 return response.data.data;
             }
@@ -59,7 +66,14 @@ export const projectService = {
     // Face Swap Projects
     async fetchFaceSwapProjects() {
         try {
-            const response = await api.get("/face-swap");
+            const response = await fetch(`${API_BASE_URL}/api/face-swap`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: "application/json",
+                    "ngrok-skip-browser-warning": true,
+                },
+            });
             if (response.data.success) {
                 return response.data.data;
             }
