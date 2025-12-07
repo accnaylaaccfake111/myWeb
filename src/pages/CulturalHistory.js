@@ -47,6 +47,7 @@ const CulturalHistory = () => {
         "Từ giã",
         "Sáng tác mới",
         "Hát Sắc Bùa",
+        "Truyền thừa",
     ];
 
     // Audio mapping

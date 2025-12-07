@@ -396,7 +396,8 @@ Cái kể - Con xô: Chúc rượu Phú Lễ …., năm nào cũng tăng
 **Cái kể**: Bến Tre nước ngọt lắm dừa
 Ruộng vườn màu mỡ biển thừa cá tôm
 Sau đây tôi xin kể các loại dừa
-Để bà con cùng nghe thử 
+Để bà con cùng nghe thử
+Dừa sai trái dữ là trái dừa chùm
 **Con xô**: Phải vì lòng Bác thanh (ớ) cao…  
 **Cái kể**: Phải vì (ờ) lòng Bác (ớ) thanh (ớ) cao  
 Nên hoa đất nước tìm vào vây (ớ) quanh  

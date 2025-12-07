@@ -13,11 +13,15 @@ import danbuacuanam from "../assets/img/danbuacuanam.png";
 import danbuacuatay from "../assets/img/danbuacuatay.png";
 import xocquach from "../assets/img/xocquach.png";
 import truta from "../assets/img/truta.png";
+import page339 from "../assets/img/pages/339.jpg";
 
 const nghiLeData = [
   {
     id: 1,
     title: "Mở cửa rào",
+    page: "339",
+    pageRange: [339],
+    pageImages: [page339], // Thêm mảng ảnh trang
     content: `**Cái kể**: Nhà ông cửa kín rào cao,  
 **Con xô**: Tôi vô chẳng đặng đứng ngoài tôi rao,  
 **Cái kể**: Hôm qua để ngõ ông chờ ai,  
