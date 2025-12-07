@@ -1,3 +1,4 @@
+import axios from "axios";
 import { storage } from "../utils/storage";
 const API_BASE_URL = process.env.REACT_APP_BE_API || "";
 
@@ -5,7 +6,7 @@ export const getFaceData = async () => {
     try {
         const token = storage.getAccessToken();
 
-        const response = await fetch(`${API_BASE_URL}/api/face-swap`, {
+        const response = await axios.get(`${API_BASE_URL}/api/face-swap`, {
             method: "GET",
             headers: {
                 Authorization: `Bearer ${token}`,
