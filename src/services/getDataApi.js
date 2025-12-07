@@ -11,6 +11,7 @@ export const getFaceData = async () => {
                 Authorization: `Bearer ${token}`,
                 Accept: "application/json",
                 "ngrok-skip-browser-warning": true,
+                'User-Agent': 'MyApp/1.0'
             },
         });
 
