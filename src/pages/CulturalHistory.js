@@ -708,9 +708,7 @@ const CulturalHistory = () => {
                                                                 .length > 0 && (
                                                                 <div className="page-images-section">
                                                                     <h4 className="text-lg font-semibold text-red-600 mb-3">
-                                                                        Ảnh
-                                                                        trang
-                                                                        sách
+                                                                        Sheet nhạc
                                                                     </h4>
                                                                     <div className="grid grid-cols-3 gap-2">
                                                                         {form.pageImages.map(
