@@ -30,6 +30,8 @@ Cái kể - Con xô: Kính dâng bốn chữ phụng mao trinh tường
   {
     id: 2,
     title: "Bài Đi ra",
+    videoUrl:
+      "https://res.cloudinary.com/dmiuw4ekf/video/upload/v1765209578/Ba%CC%80i_%C4%91i_ra_1_mhm9w0.mp4",
     content: `**(Nghệ nhân đờn cò dạo đầu, trống phách gõ theo, kết thúc phần dạo đầu, cái kể vào nhịp)**  
 **Cái kể**: Ăn trầu đã đặng  
 **Cái kể**: Hút thuốc đã rồi  

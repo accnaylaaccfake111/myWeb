@@ -1,6 +1,6 @@
 // frontend/src/pages/CulturalHistory.js
 import React, { useState, useEffect, useRef } from "react";
-import { Search, X, Play, Pause } from "lucide-react";
+import { Search, X, Play, Pause, Music } from "lucide-react";
 import culturalForms from "../data/culturalData";
 import choiXuanAudio from "../assets/audio/choixuan.mp3";
 import giaTuAudio from "../assets/audio/giatu.mp3";
@@ -35,10 +35,15 @@ const CulturalHistory = () => {
     const [currentAudio, setCurrentAudio] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentPlayingCard, setCurrentPlayingCard] = useState(null);
+    const [videoModalOpen, setVideoModalOpen] = useState(false);
+    const [currentVideoUrl, setCurrentVideoUrl] = useState(null);
+    const [sheetMusicModalOpen, setSheetMusicModalOpen] = useState(false);
+    const [currentSheetMusic, setCurrentSheetMusic] = useState(null);
 
     const cardRefs = useRef({});
     const timelineRef = useRef(null);
     const audioRef = useRef(null);
+    const videoRef = useRef(null);
 
     const filterOptions = [
         "Tất cả",
@@ -156,7 +161,7 @@ const CulturalHistory = () => {
     }, []);
 
     useEffect(() => {
-        if (enlargedImage) {
+        if (enlargedImage || videoModalOpen || sheetMusicModalOpen) {
             document.body.style.overflow = "hidden";
         } else {
             document.body.style.overflow = "auto";
@@ -164,7 +169,7 @@ const CulturalHistory = () => {
         return () => {
             document.body.style.overflow = "auto";
         };
-    }, [enlargedImage]);
+    }, [enlargedImage, videoModalOpen, sheetMusicModalOpen]);
 
     const handleImageEnlarge = (imageSrc, event) => {
         event.stopPropagation();
@@ -177,6 +182,43 @@ const CulturalHistory = () => {
     const handleOverlayClick = (event) => {
         if (event.target === event.currentTarget) {
             closeEnlargedImage();
+        }
+    };
+
+    const openVideoModal = (videoUrl, event) => {
+        event.stopPropagation();
+        setCurrentVideoUrl(videoUrl);
+        setVideoModalOpen(true);
+    };
+
+    const closeVideoModal = () => {
+        setVideoModalOpen(false);
+        setCurrentVideoUrl(null);
+        if (videoRef.current) {
+            videoRef.current.pause();
+        }
+    };
+
+    const handleVideoOverlayClick = (event) => {
+        if (event.target === event.currentTarget) {
+            closeVideoModal();
+        }
+    };
+
+    const openSheetMusicModal = (pageImages, pageRange, event) => {
+        event.stopPropagation();
+        setCurrentSheetMusic({ pageImages, pageRange });
+        setSheetMusicModalOpen(true);
+    };
+
+    const closeSheetMusicModal = () => {
+        setSheetMusicModalOpen(false);
+        setCurrentSheetMusic(null);
+    };
+
+    const handleSheetMusicOverlayClick = (event) => {
+        if (event.target === event.currentTarget) {
+            closeSheetMusicModal();
         }
     };
 
@@ -658,6 +700,12 @@ const CulturalHistory = () => {
                                                         <h3 className="text-xl font-bold text-gray-800 title-glow">
                                                             {form.title}
                                                         </h3>
+                                                        {form.videoUrl && (
+                                                            <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-600 text-xs rounded-full flex items-center gap-1">
+                                                                <Play size={12} />
+                                                                Video
+                                                            </span>
+                                                        )}
                                                     </div>
                                                     <div className="mb-2">
                                                         <span className="inline-block px-3 py-1 bg-red-50 text-red-600 text-sm rounded-full border border-red-200 year-badge">
@@ -688,120 +736,98 @@ const CulturalHistory = () => {
                                         {/* Layout khi thẻ mở cho Hát Sắc Bùa */}
                                         {isExpanded && (
                                             <div className="expanded-layout">
-                                                <div className="flex flex-col lg:flex-row gap-6">
-                                                    {/* Ảnh bên trái */}
-                                                    <div className="lg:w-2/5">
-                                                        <div className="expanded-image-container mb-4">
-                                                            <img
-                                                                src={
-                                                                    form.image ||
-                                                                    "/placeholder.png"
+                                                {/* Ảnh chính */}
+                                                <div className="expanded-image-container mb-4">
+                                                    <img
+                                                        src={form.image || "/placeholder.png"}
+                                                        alt={form.title}
+                                                        className="w-full h-64 lg:h-80 object-cover rounded-xl shadow-md expanded-image"
+                                                    />
+                                                </div>
+
+                                                {/* 3 nút nằm ngang: Nghe nhạc, Xem video, Sheet nhạc */}
+                                                <div className="flex justify-center gap-2 mb-6">
+                                                    {audioMap[form.title] && (
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                const isThisPlaying = currentPlayingCard === uniqueId && isPlaying;
+                                                                if (isThisPlaying) {
+                                                                    pauseAudio();
+                                                                } else {
+                                                                    playAudio(form.title, uniqueId);
                                                                 }
-                                                                alt={form.title}
-                                                                className="w-full h-64 lg:h-80 object-cover rounded-xl shadow-md expanded-image"
-                                                            />
-                                                        </div>
-
-                                                        {/* Hiển thị các ảnh trang nhỏ */}
-                                                        {form.pageImages &&
-                                                            form.pageImages
-                                                                .length > 0 && (
-                                                                <div className="page-images-section">
-                                                                    <h4 className="text-lg font-semibold text-red-600 mb-3">
-                                                                        Sheet nhạc
-                                                                    </h4>
-                                                                    <div className="grid grid-cols-3 gap-2">
-                                                                        {form.pageImages.map(
-                                                                            (
-                                                                                pageImage,
-                                                                                imgIndex,
-                                                                            ) => (
-                                                                                <div
-                                                                                    key={
-                                                                                        imgIndex
-                                                                                    }
-                                                                                    className="relative cursor-pointer group"
-                                                                                    onClick={(
-                                                                                        e,
-                                                                                    ) =>
-                                                                                        handleImageEnlarge(
-                                                                                            pageImage,
-                                                                                            e,
-                                                                                        )
-                                                                                    }
-                                                                                >
-                                                                                    <img
-                                                                                        src={
-                                                                                            pageImage
-                                                                                        }
-                                                                                        alt={`Trang ${
-                                                                                            form.pageRange
-                                                                                                ? form
-                                                                                                      .pageRange[
-                                                                                                      imgIndex
-                                                                                                  ]
-                                                                                                : imgIndex +
-                                                                                                  1
-                                                                                        }`}
-                                                                                        className="w-full h-20 object-cover rounded-lg border border-gray-200 transition-all duration-300 group-hover:scale-105 group-hover:shadow-md"
-                                                                                    />
-                                                                                    <div className="absolute bottom-1 left-1 bg-black bg-opacity-60 text-white text-xs px-1 rounded">
-                                                                                        Trang{" "}
-                                                                                        {form.pageRange
-                                                                                            ? form
-                                                                                                  .pageRange[
-                                                                                                  imgIndex
-                                                                                              ]
-                                                                                            : imgIndex +
-                                                                                              1}
-                                                                                    </div>
-                                                                                </div>
-                                                                            ),
-                                                                        )}
-                                                                    </div>
-                                                                </div>
+                                                            }}
+                                                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-all duration-300 ${
+                                                                currentPlayingCard === uniqueId && isPlaying
+                                                                    ? "bg-red-50 text-red-600 border border-red-300 hover:bg-red-100"
+                                                                    : "bg-green-50 text-green-700 border border-green-300 hover:bg-green-100"
+                                                            }`}
+                                                            aria-label={currentPlayingCard === uniqueId && isPlaying ? "Dừng nhạc" : "Phát nhạc"}
+                                                        >
+                                                            {currentPlayingCard === uniqueId && isPlaying ? (
+                                                                <>
+                                                                    <Pause size={16} />
+                                                                    <span>Dừng nhạc</span>
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <Play size={16} />
+                                                                    <span>Nghe nhạc</span>
+                                                                </>
                                                             )}
+                                                        </button>
+                                                    )}
+                                                    {form.videoUrl && (
+                                                        <button
+                                                            onClick={(e) => openVideoModal(form.videoUrl, e)}
+                                                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm bg-blue-50 text-blue-700 border border-blue-300 hover:bg-blue-100 transition-all duration-300"
+                                                            aria-label="Xem video"
+                                                        >
+                                                            <Play size={16} />
+                                                            <span>Xem video</span>
+                                                        </button>
+                                                    )}
+                                                    {form.pageImages && form.pageImages.length > 0 && (
+                                                        <button
+                                                            onClick={(e) => openSheetMusicModal(form.pageImages, form.pageRange, e)}
+                                                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm bg-purple-50 text-purple-700 border border-purple-300 hover:bg-purple-100 transition-all duration-300"
+                                                            aria-label="Xem sheet nhạc"
+                                                        >
+                                                            <Music size={16} />
+                                                            <span>Sheet nhạc</span>
+                                                        </button>
+                                                    )}
+                                                </div>
+
+                                                {/* Thông tin bài hát */}
+                                                <div className="flex items-center mb-4">
+                                                    <span className="text-3xl mr-3 icon-bounce">
+                                                        {form.icon}
+                                                    </span>
+                                                    <div className="flex-1">
+                                                        <h3 className="text-2xl font-bold text-gray-800 title-glow mb-2">
+                                                            {form.title}
+                                                        </h3>
+                                                        <span className="inline-block px-3 py-1 bg-red-50 text-red-600 text-sm rounded-full border border-red-200 year-badge-expanded">
+                                                            Trang {form.page} • {form.author}
+                                                        </span>
                                                     </div>
+                                                </div>
 
-                                                    {/* Nội dung bên phải */}
-                                                    <div className="lg:w-3/5">
-                                                        {/* Tiêu đề và thông tin cơ bản */}
-                                                        <div className="flex items-start mb-4">
-                                                            <span className="text-3xl mr-3 icon-bounce mt-1">
-                                                                {form.icon}
-                                                            </span>
-                                                            <div className="flex-1">
-                                                                <h3 className="text-2xl font-bold text-gray-800 title-glow mb-2">
-                                                                    {form.title}
-                                                                </h3>
-                                                                <span className="inline-block px-3 py-1 bg-red-50 text-red-600 text-sm rounded-full border border-red-200 year-badge-expanded">
-                                                                    Trang{" "}
-                                                                    {form.page}{" "}
-                                                                    •{" "}
-                                                                    {
-                                                                        form.author
-                                                                    }
-                                                                </span>
-                                                            </div>
-                                                        </div>
+                                                {/* Mô tả */}
+                                                <p className="text-gray-600 mb-6 text-lg leading-relaxed description-expanded">
+                                                    {form.description}
+                                                </p>
 
-                                                        {/* Mô tả ngắn */}
-                                                        <p className="text-gray-600 mb-6 text-lg leading-relaxed description-expanded">
-                                                            {form.description}
-                                                        </p>
-
-                                                        {/* Nội dung chi tiết - Cấu trúc mới cho Hát Sắc Bùa */}
-                                                        <div className="text-gray-600 expanded-content">
-                                                            <div className="mb-6 lyric-container">
-                                                                <h4 className="text-xl font-semibold text-red-600 mb-4 section-title">
-                                                                    Lời bài hát
-                                                                </h4>
-                                                                <div className="bg-gray-50 rounded-lg p-4 max-h-96 overflow-y-auto lyric-content">
-                                                                    {formatHatSacBuaContent(
-                                                                        form.parts,
-                                                                    )}
-                                                                </div>
-                                                            </div>
+                                                {/* Nội dung chi tiết - Cấu trúc mới cho Hát Sắc Bùa */}
+                                                <div className="text-gray-600 expanded-content">
+                                                    <div className="mb-6 lyric-container">
+                                                        <h4 className="text-xl font-semibold text-red-600 mb-4 section-title">
+                                                            Lời bài hát
+                                                        </h4>
+                                                        <div className="bg-gray-50 rounded-lg p-4 max-h-96 overflow-y-auto lyric-content">
+                                                            {formatHatSacBuaContent(form.parts)}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -917,6 +943,12 @@ const CulturalHistory = () => {
                                                                                 form.title
                                                                             }
                                                                         </h3>
+                                                                        {form.videoUrl && (
+                                                                            <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-600 text-xs rounded-full flex items-center gap-1">
+                                                                                <Play size={12} />
+                                                                                Video
+                                                                            </span>
+                                                                        )}
                                                                     </div>
                                                                     <p className="text-sm text-red-600 mb-2 year-badge">
                                                                         {
@@ -936,7 +968,7 @@ const CulturalHistory = () => {
                                                     {expandedCard ===
                                                         uniqueId && (
                                                         <div className="expanded-layout">
-                                                            <div className="mb-6 expanded-image-container">
+                                                            <div className="mb-4 expanded-image-container">
                                                                 <img
                                                                     src={
                                                                         form.image ||
@@ -947,6 +979,60 @@ const CulturalHistory = () => {
                                                                     }
                                                                     className="w-full h-40 md:h-48 lg:h-52 object-cover rounded-xl shadow-md expanded-image"
                                                                 />
+                                                            </div>
+
+                                                            {/* 3 nút nằm ngang: Nghe nhạc, Xem video, Sheet nhạc */}
+                                                            <div className="flex justify-center gap-2 mb-6">
+                                                                {hasAudio && (
+                                                                    <button
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            if (isThisCardPlaying) {
+                                                                                pauseAudio();
+                                                                            } else {
+                                                                                playAudio(form.title, uniqueId);
+                                                                            }
+                                                                        }}
+                                                                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-all duration-300 ${
+                                                                            isThisCardPlaying
+                                                                                ? "bg-red-50 text-red-600 border border-red-300 hover:bg-red-100"
+                                                                                : "bg-green-50 text-green-700 border border-green-300 hover:bg-green-100"
+                                                                        }`}
+                                                                        aria-label={isThisCardPlaying ? "Dừng nhạc" : "Phát nhạc"}
+                                                                    >
+                                                                        {isThisCardPlaying ? (
+                                                                            <>
+                                                                                <Pause size={16} />
+                                                                                <span>Dừng nhạc</span>
+                                                                            </>
+                                                                        ) : (
+                                                                            <>
+                                                                                <Play size={16} />
+                                                                                <span>Nghe nhạc</span>
+                                                                            </>
+                                                                        )}
+                                                                    </button>
+                                                                )}
+                                                                {form.videoUrl && (
+                                                                    <button
+                                                                        onClick={(e) => openVideoModal(form.videoUrl, e)}
+                                                                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm bg-blue-50 text-blue-700 border border-blue-300 hover:bg-blue-100 transition-all duration-300"
+                                                                        aria-label="Xem video"
+                                                                    >
+                                                                        <Play size={16} />
+                                                                        <span>Xem video</span>
+                                                                    </button>
+                                                                )}
+                                                                {form.pageImages && form.pageImages.length > 0 && (
+                                                                    <button
+                                                                        onClick={(e) => openSheetMusicModal(form.pageImages, form.pageRange, e)}
+                                                                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm bg-purple-50 text-purple-700 border border-purple-300 hover:bg-purple-100 transition-all duration-300"
+                                                                        aria-label="Xem sheet nhạc"
+                                                                    >
+                                                                        <Music size={16} />
+                                                                        <span>Sheet nhạc</span>
+                                                                    </button>
+                                                                )}
                                                             </div>
 
                                                             <div className="flex items-center mb-4">
@@ -969,62 +1055,6 @@ const CulturalHistory = () => {
                                                                         }
                                                                     </p>
                                                                 </div>
-
-                                                                {hasAudio && (
-                                                                    <button
-                                                                        onClick={(
-                                                                            e,
-                                                                        ) => {
-                                                                            e.stopPropagation();
-                                                                            if (
-                                                                                isThisCardPlaying
-                                                                            ) {
-                                                                                pauseAudio();
-                                                                            } else {
-                                                                                playAudio(
-                                                                                    form.title,
-                                                                                    uniqueId,
-                                                                                );
-                                                                            }
-                                                                        }}
-                                                                        className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 ${
-                                                                            isThisCardPlaying
-                                                                                ? "bg-red-600 text-white"
-                                                                                : "bg-green-600 text-white hover:bg-green-700"
-                                                                        }`}
-                                                                        aria-label={
-                                                                            isThisCardPlaying
-                                                                                ? "Dừng nhạc"
-                                                                                : "Phát nhạc"
-                                                                        }
-                                                                    >
-                                                                        {isThisCardPlaying ? (
-                                                                            <>
-                                                                                <Pause
-                                                                                    size={
-                                                                                        20
-                                                                                    }
-                                                                                />
-                                                                                <span>
-                                                                                    Dừng
-                                                                                    nhạc
-                                                                                </span>
-                                                                            </>
-                                                                        ) : (
-                                                                            <>
-                                                                                <Play
-                                                                                    size={
-                                                                                        20
-                                                                                    }
-                                                                                />
-                                                                                <span>
-                                                                                    Nghe
-                                                                                    nhạc
-                                                                                </span>
-                                                                            </>
-                                                                        )}
-                                                                    </button>
-                                                                )}
                                                             </div>
 
                                                             <p className="text-gray-600 mb-6 text-lg leading-relaxed description-expanded">
@@ -1453,6 +1483,75 @@ const CulturalHistory = () => {
           overflow: hidden;
         }
       `}</style>
+
+            {/* Sheet Music Modal */}
+            {sheetMusicModalOpen && currentSheetMusic && (
+                <div
+                    className="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center p-4"
+                    onClick={handleSheetMusicOverlayClick}
+                >
+                    <div className="relative bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6">
+                        <button
+                            onClick={closeSheetMusicModal}
+                            className="absolute top-4 right-4 z-10 bg-red-600 text-white p-2 rounded-full hover:bg-red-700 transition-colors duration-200"
+                            aria-label="Đóng sheet nhạc"
+                        >
+                            <X size={24} />
+                        </button>
+                        <h3 className="text-2xl font-bold text-red-600 mb-4">Sheet nhạc</h3>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
+                            {currentSheetMusic.pageImages.map((pageImage, imgIndex) => (
+                                <div
+                                    key={imgIndex}
+                                    className="relative cursor-pointer group"
+                                    onClick={(e) => {
+                                        closeSheetMusicModal();
+                                        handleImageEnlarge(pageImage, e);
+                                    }}
+                                >
+                                    <img
+                                        src={pageImage}
+                                        alt={`Trang ${currentSheetMusic.pageRange ? currentSheetMusic.pageRange[imgIndex] : imgIndex + 1}`}
+                                        className="w-full h-32 object-cover rounded-lg border-2 border-gray-200 transition-all duration-300 group-hover:scale-105 group-hover:shadow-lg group-hover:border-red-400"
+                                    />
+                                    <div className="absolute bottom-2 left-2 bg-black bg-opacity-70 text-white text-sm px-2 py-1 rounded">
+                                        Trang {currentSheetMusic.pageRange ? currentSheetMusic.pageRange[imgIndex] : imgIndex + 1}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Video Modal */}
+            {videoModalOpen && currentVideoUrl && (
+                <div
+                    className="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center p-4"
+                    onClick={handleVideoOverlayClick}
+                >
+                    <div className="relative bg-white rounded-xl shadow-2xl max-w-4xl w-full overflow-hidden">
+                        <button
+                            onClick={closeVideoModal}
+                            className="absolute top-4 right-4 z-10 bg-red-600 text-white p-2 rounded-full hover:bg-red-700 transition-colors duration-200"
+                            aria-label="Đóng video"
+                        >
+                            <X size={24} />
+                        </button>
+                        <div className="aspect-video bg-black">
+                            <video
+                                ref={videoRef}
+                                src={currentVideoUrl}
+                                controls
+                                autoPlay
+                                className="w-full h-full"
+                            >
+                                Trình duyệt của bạn không hỗ trợ video.
+                            </video>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

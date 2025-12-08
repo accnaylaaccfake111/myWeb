@@ -22,7 +22,7 @@ const nghiLeData = [
     title: "Mở cửa rào",
     page: "339",
     pageRange: [339],
-    pageImages: [page339], // Thêm mảng ảnh trang
+    pageImages: [page339],
     content: `**Cái kể**: Nhà ông cửa kín rào cao,  
 **Con xô**: Tôi vô chẳng đặng đứng ngoài tôi rao,  
 **Cái kể**: Hôm qua để ngõ ông chờ ai,  
@@ -46,6 +46,10 @@ Cái kể - Con xô: Sai ra mở ngõ, đàn trai tôi hát bùa.
   {
     id: 2,
     title: "Mở ngõ",
+    page: "340",
+    pageRange: [340],
+    pageImages: [page340],
+    videoUrl: "https://res.cloudinary.com/dmiuw4ekf/video/upload/v1765207603/Mo%CC%9B%CC%89_ngo%CC%83_1_rtoor7.mp4",
     content: `**Cái kể**: Ngõ này, ngõ ai  
 Trên thời xây gạch  
 Dưới tợ rồng bay  
