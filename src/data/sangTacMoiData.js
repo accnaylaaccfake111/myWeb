@@ -390,45 +390,55 @@ Cái kể - Con xô: Chúc rượu Phú Lễ …., năm nào cũng tăng
   },
   {
     id: 10,
-    title: "Vè các loại Dừa",
+    title: "Vè trái dừa Bến Tre",
     content: `**(Tự tin, cảm xúc)**  
 (Nghệ nhân đờn cò dạo đầu, trống phách gõ theo, kết thúc phần dạo đầu, cái kể vào nhịp)  
 **Cái kể**: Bến Tre nước ngọt lắm dừa
 Ruộng vườn màu mỡ biển thừa cá tôm
 Sau đây tôi xin kể các loại dừa
 Để bà con cùng nghe thử
-Dừa sai trái dữ là trái dừa chùm
-**Con xô**: Phải vì lòng Bác thanh (ớ) cao…  
-**Cái kể**: Phải vì (ờ) lòng Bác (ớ) thanh (ớ) cao  
-Nên hoa đất nước tìm vào vây (ớ) quanh  
-**Con xô**: Gối non sông một giấc (ớ) lành …  
-**Cái kể**: Gối non (a) sông một (ơ) giấc (ơ) lành  
-Chòm râu (Bác) trắng, thoáng rung rinh (ơ) gió đèo  
-**Con xô**: Nghe (ơ) từng tiếng suối trong (ớ) veo  
-**Cái kể**: Nghe (ơ) từng…tiếng suối (..ớ) trong (ớ) veo  
-Phập phồng Bác (ơ) thở (ơ)..nhịp (ơ) đều tim con  
-**Con xô**: Lặng (ớ) im giấc Bác đang (ơ) tròn  
-**Cái kể**: Lặng im (ơ..) giấc Bác (ớ) đang (ơ) tròn  
-Ước gì được (ơ) Bác vẫy con (ờ…) đến gần  
-**Con xô**: Một lần thôi chỉ một (ơ..) lần  
-**Cái kể**: Một lần (ơ…) thôi chỉ (ơ) một lần  
-Như miền Nam chỉ trong (ơ) ngần ấy thôi!  
-**Con xô**: Chân con bước chậm lại rồi  
-**Cái kể**: Chân con (ơ..) bước chậm (ớ..) lại (ơ) rồi  
-Muốn dừng bên Bác, nghe (ơ) lời Bác khuyên  
-**Con xô**: Sẽ sàng sợ động giấc hiền  
-**Cái kể**: Sẽ (ơ) sàng (ơ) sợ động (ơ) giấc (ơ) hiền  
-Bác vừa ngủ đó, mơ (ớ) miền Nam (…) xa  
-**Con xô**: Mơ (ớ) ngày toàn thắng (ớ) về (ơ) ta  
-**Cái kể**: Mơ (ơ) ngày (ờ) toàn thắng (ớ) về (ế) ta  
-Bác đi thăm hỏi đường (…ớ) xa Bác (…) mừng  
-**Con xô**: Bồi hồi con bước (ớ).., rưng (ớ) rưng  
-**Cái kể**: Bồi hồi (….) con bước (ớ) rưng (ớ) rưng  
-Thương ngày gian khổ (ố), núi (úi) rừng (ừng)- Bác (ớ) đi  
-**Con xô**: Xa nơi Bác nghỉ, con về  
-**Cái kể**: Xa nơi (ơ) Bác nghỉ (…ớ), con về  
-Ngoái nhìn Lăng (Bác), mỗi bước đi chẳng đành  
-Cái kể - Con xô: Ngoái nhìn Lăng (Bác),…. chẳng (ơ) đành… bước (ớ) đi.  
+Dừa sai trái dữ 
+**Con xô**: là trái dừa chùm 
+**Cái kể**: Dừa rụng cum cum
+**Con xô**: là trái dừa mõ
+**Cái kể**: Ăn vỏ giòn ngọt
+**Con xô**: là trái dừa bông
+**Cái kể**: Dễ cháy như không
+**Con xô**: là trái dừa lửa
+**Cái kể**: Khỏi chùi khỏi rửa
+**Con xô**: là trái dừa khô
+Cái kể - Con xô: Có cửa ra vô là dừa chuột khoét
+**Cái kể**: Cá vô mắc kẹt 
+**Con xô**: là trái dừa bung
+**Cái kể**: Mắc - gai mọc cùng
+**Con xô**: là trái dừa dứa
+**Cái kể**: Cưới về chọn lựa
+**Con xô**: là trái dừa dâu
+**Cái kể**: Hiểu mà ra dấu
+**Con xô**: là trái dừa câm
+**Cái kể**: Trắng ải xa xăm
+**Con xô**: Tam quang vàng vỏ
+**Cái kể**: Nhỏ mà cốt Thái
+**Con xô**: là trái dừa xiêm
+**Cái kể**: Gọi mãi vẫn im
+**Con xô**: là trái dừa điếc
+**Cái kể**: Giống mình như thiệt
+**Con xô**: là trái dừa ta
+**Cái kể**: Chẳng ngựa chẳng la
+**Con xô**: Mã Lai trái đỏ
+**Cái kể**: Làm nến thắp tỏ
+**Con xô**: là trái dừa sáp
+**Cái kể**: 
+**Con xô**: 
+**Cái kể**: 
+**Con xô**: 
+**Cái kể**: Mọc răng trên đầu
+**Con xô**: là trái dừa mộng 
+**Cái kể**: Cộng đi cộng lại
+**Con xô**: Đủ các loại dừa
+Cái kể - Con xô: Lời cuối xin thưa/ Lời cuối xin thưa
+Quê dừa Đồng khởi
+
 
 **Mốc thời gian**: Sáng tác tháng 12/1976, được ghi nhận trong cuộc khảo sát từ năm 2014.`,
     image: vienglangbac,
