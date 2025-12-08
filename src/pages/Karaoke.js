@@ -11,6 +11,12 @@ import ScoreDisplay from "../components/karaoke/ScoreDisplay";
 import { storage } from "../utils/storage";
 import useAudioNormalizer from "../hooks/useAudioNormalizer";
 
+// Photo
+import moCuaRao from "../assets/img/mocuarao.png"
+import lyDauCauDai from "../assets/img/lycaudai.png"
+import vinhLongNganXuan from "../assets/img/vinhlongnganxuan.png"
+import giaTu from "../assets/img/tuGia.png"
+
 import {
     processFileSource,
     callMergeVideoAPI,
@@ -28,9 +34,11 @@ import {
     Play,
     Square,
     Circle,
-    Save,
-    Download,
     ArrowLeft,
+    Image as ImageIcon, // Alias icon Image để tránh trùng tên
+    Sparkles, // Thêm icon trang trí
+    Video,
+    Users
 } from "lucide-react";
 
 const LoginPrompt = ({ location }) => {
@@ -148,7 +156,7 @@ Con đò tri thức đưa bao thế hệ`,
     const videoRef = useRef(null);
     const countdownRef = useRef(null);
     const mediaRecorderRef = useRef(null);
-    const recordingCompletedRef = useRef(false); // Thêm ref để theo dõi trạng thái hoàn thành thu âm
+    const recordingCompletedRef = useRef(false);
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -355,18 +363,11 @@ Con đò tri thức đưa bao thế hệ`,
         }
     }, [lyrics, audioDuration]);
 
-    // Thêm hàm này để kiểm tra timings
     const validateTimings = (timings, audioDuration) => {
         if (timings.length === 0) return;
 
         const lastTiming = timings[timings.length - 1];
-        console.log(`Audio duration: ${audioDuration}s`);
-        console.log(`Last word ends at: ${lastTiming.endTime}s`);
-        console.log(
-            `Within audio duration: ${lastTiming.endTime <= audioDuration}`,
-        );
-
-        // Kiểm tra xem có timing nào vượt quá không
+        
         const exceededTimings = timings.filter(
             (t) => t.endTime > audioDuration,
         );
@@ -377,12 +378,11 @@ Con đò tri thức đưa bao thế hệ`,
         }
     };
 
-    // Gọi hàm kiểm tra sau khi tính toán timings
     useEffect(() => {
         if (lyrics && audioDuration > 0) {
             const timings = calculateWordTimings();
             setWordTimings(timings);
-            validateTimings(timings, audioDuration); // Kiểm tra
+            validateTimings(timings, audioDuration);
         }
     }, [lyrics, audioDuration]);
 
@@ -413,7 +413,6 @@ Con đò tri thức đưa bao thế hệ`,
             const words = line.split(" ").filter((word) => word.trim() !== "");
 
             words.forEach((word, wordInLineIndex) => {
-                // KIỂM TRA KHÔNG VƯỢT QUÁ THỜI LƯỢNG AUDIO
                 if (currentTime >= audioDuration) return;
 
                 const syllableCount =
@@ -422,7 +421,6 @@ Con đò tri thức đưa bao thế hệ`,
                     )?.length || 1;
                 const wordDuration = syllableCount * timePerSyllable;
 
-                // ĐẢM BẢO END TIME KHÔNG VƯỢT QUÁ AUDIO DURATION
                 const endTime = Math.min(
                     currentTime + wordDuration,
                     audioDuration,
@@ -439,7 +437,6 @@ Con đò tri thức đưa bao thế hệ`,
                 currentTime = endTime;
             });
 
-            // THÊM KHOẢNG NGHỈ GIỮA CÁC DÒNG, NHƯNG KHÔNG VƯỢT QUÁ
             if (lineIndex < lines.length - 1 && currentTime < audioDuration) {
                 const lineBreakDuration = timePerSyllable * 0.8;
                 currentTime = Math.min(
@@ -448,7 +445,6 @@ Con đò tri thức đưa bao thế hệ`,
                 );
             }
         });
-        console.log(timings);
 
         return timings;
     };
@@ -558,7 +554,7 @@ Con đò tri thức đưa bao thế hệ`,
         }
     };
 
-    // Recording functions - FIXED VERSION
+    // Recording functions
     const checkMicrophonePermission = async () => {
         try {
             if (
@@ -607,7 +603,6 @@ Con đò tri thức đưa bao thế hệ`,
 
             streamRef.current = stream;
 
-            // ƯU TIÊN ĐỊNH DẠNG CÓ METADATA TỐT HƠN
             const mimeTypes = [
                 "audio/webm;codecs=opus",
                 "audio/mp4;codecs=mp4a",
@@ -653,12 +648,6 @@ Con đò tri thức đưa bao thế hệ`,
                     type: blobType,
                 });
 
-                console.log("✅ Blob được tạo:", {
-                    size: blob.size,
-                    type: blob.type,
-                });
-
-                // TẠO FILE VỚI METADATA ĐẦY ĐỦ
                 const fileExtension = getFileExtension(blobType);
                 const audioFile = new File(
                     [blob],
@@ -671,7 +660,6 @@ Con đò tri thức đưa bao thế hệ`,
 
                 const audioUrl = URL.createObjectURL(blob);
 
-                // THÊM KIỂM TRA VÀ SỬA METADATA
                 fixAudioMetadata(blob)
                     .then((fixedBlob) => {
                         const fixedAudioFile = new File(
@@ -688,7 +676,6 @@ Con đò tri thức đưa bao thế hệ`,
                         setRecordedFile(fixedAudioFile);
                         recordingCompletedRef.current = true;
 
-                        // KIỂM TRA DURATION TRƯỚC KHI PHÂN TÍCH
                         testAudioDuration(audioUrl)
                             .then((duration) => {
                                 console.log("⏱️ Duration thực tế:", duration);
@@ -704,7 +691,6 @@ Con đò tri thức đưa bao thế hệ`,
                     })
                     .catch((error) => {
                         console.error("❌ Lỗi fix metadata:", error);
-                        // FALLBACK: Sử dụng file gốc
                         setRecordedAudio(audioUrl);
                         setRecordedBlob(blob);
                         setRecordedFile(audioFile);
@@ -731,8 +717,6 @@ Con đò tri thức đưa bao thế hệ`,
         }
     };
 
-    // Hàm sửa metadata cho audio blob
-    // Hàm sửa metadata cho audio blob - FIXED
     const fixAudioMetadata = (blob) => {
         return new Promise((resolve, reject) => {
             const audio = new Audio();
@@ -751,14 +735,12 @@ Con đò tri thức đưa bao thế hệ`,
                     audio.duration,
                 );
 
-                // KIỂM TRA DURATION HỢP LỆ
                 if (
                     audio.duration === Infinity ||
                     isNaN(audio.duration) ||
                     audio.duration === 0
                 ) {
                     console.warn("⚠️ Duration không hợp lệ:", audio.duration);
-                    // VẪN SỬ DỤNG BLOB GỐC NHƯNG CÓ CẢNH BÁO
                     URL.revokeObjectURL(url);
                     resolve(blob);
                 } else {
@@ -779,7 +761,6 @@ Con đò tri thức đưa bao thế hệ`,
         });
     };
 
-    // Hàm kiểm tra duration
     const testAudioDuration = (audioUrl) => {
         return new Promise((resolve, reject) => {
             const audio = new Audio();
@@ -796,7 +777,6 @@ Con đò tri thức đưa bao thế hệ`,
         });
     };
 
-    // Hàm hỗ trợ lấy extension
     const getFileExtension = (mimeType) => {
         const extensions = {
             "audio/webm;codecs=opus": "webm",
@@ -850,29 +830,24 @@ Con đò tri thức đưa bao thế hệ`,
         setIsPlaying(false);
         setRecordingStatus("stopping");
 
-        // Dừng countdown trước
         if (countdownRef.current) {
             clearInterval(countdownRef.current);
             countdownRef.current = null;
         }
 
-        // Dừng animation frame
         if (animationFrameRef.current) {
             cancelAnimationFrame(animationFrameRef.current);
         }
 
-        // Dừng audio trước
         pauseAudio();
         stopAudio();
 
-        // Xử lý MediaRecorder một cách tuần tự
         if (mediaRecorderRef.current) {
             const recorder = mediaRecorderRef.current;
 
             if (recorder.state === "recording") {
                 console.log("⏹️ Dừng MediaRecorder...");
 
-                // Tạo promise để đợi sự kiện onstop hoàn tất
                 await new Promise((resolve) => {
                     const onStopHandler = () => {
                         recorder.removeEventListener("stop", onStopHandler);
@@ -882,13 +857,11 @@ Con đò tri thức đưa bao thế hệ`,
                     recorder.addEventListener("stop", onStopHandler);
                     recorder.stop();
 
-                    // Timeout dự phòng
                     setTimeout(resolve, 1000);
                 });
             }
         }
 
-        // Dừng stream
         if (streamRef.current) {
             console.log("🔇 Dừng stream...");
             streamRef.current.getTracks().forEach((track) => track.stop());
@@ -899,7 +872,6 @@ Con đò tri thức đưa bao thế hệ`,
         setRecordingStatus("idle");
     };
 
-    // Main control functions - FIXED
     const handleStart = async () => {
         if (!audioFile || !isAudioLoaded) {
             setShowAudioModal(true);
@@ -929,7 +901,6 @@ Con đò tri thức đưa bao thế hệ`,
             }
 
             console.log("🎤 Bắt đầu thu âm...");
-            // TĂNG TIMESLICE LÊN 5000ms ĐỂ CÓ METADATA TỐT HƠN
             mediaRecorderRef.current.start(5000);
             setIsPlaying(true);
             playAudio();
@@ -954,28 +925,20 @@ Con đò tri thức đưa bao thế hệ`,
         setMaxCombo(0);
         setRecordingError(null);
         setRecordingStatus("idle");
-        recordingCompletedRef.current = false; // Reset ref
+        recordingCompletedRef.current = false;
         audioChunksRef.current = [];
     };
 
     const handleStop = async () => {
         setIsAnalyzing(true);
         try {
-            // Đánh dấu là đang dừng để tránh xử lý trùng
             recordingCompletedRef.current = true;
-
             await stopRecordingAndAudio();
 
-            // KIỂM TRA NGAY LẬP TỨC thay vì setTimeout
             if (audioChunksRef.current.length > 0) {
                 console.log("🔄 Tạo file từ chunks hiện có...");
                 const blob = new Blob(audioChunksRef.current, {
                     type: "audio/webm",
-                });
-
-                console.log("🔍 Blob được tạo:", {
-                    size: blob.size,
-                    type: blob.type,
                 });
 
                 if (blob.size > 0) {
@@ -1012,7 +975,6 @@ Con đò tri thức đưa bao thế hệ`,
         mediaRecorderRef.current = null;
     };
 
-    // Scoring and analysis - IMPROVED
     const analyzeVoice = async (audioFile, lyricsText) => {
         setIsAnalyzing(true);
         if (!audioFile) {
@@ -1106,7 +1068,6 @@ Con đò tri thức đưa bao thế hệ`,
         return Math.min(0.7 + progress * 0.3, 0.95);
     };
 
-    // Project management
     const handleProjectSelect = (project) => {
         setSelectedProject(project);
         setLyrics(project.lyrics);
@@ -1162,7 +1123,6 @@ Con đò tri thức đưa bao thế hệ`,
                 );
             }
 
-            // 5. Tạo FormData
             const formData = new FormData();
             if (filesToExport.videoFile) {
                 formData.append("video", filesToExport.videoFile);
@@ -1183,7 +1143,6 @@ Con đò tri thức đưa bao thế hệ`,
         setIsExporting(false);
     };
 
-    // Audio file handling
     const handleAudioUpload = (event) => {
         const file = event.target.files[0];
         if (file) {
@@ -1221,7 +1180,6 @@ Con đò tri thức đưa bao thế hệ`,
     const handleOpenAudioUpload = () => setShowAudioModal(true);
     const handleCloseAudioModal = () => setShowAudioModal(false);
 
-    // Countdown overlay component
     const CountdownOverlay = () => {
         if (countdown === 0) return null;
 
@@ -1236,7 +1194,6 @@ Con đò tri thức đưa bao thế hệ`,
         );
     };
 
-    // Recording status component
     const RecordingStatusDisplay = () => {
         if (recordingStatus === "countdown") {
             return (
@@ -1277,22 +1234,99 @@ Con đò tri thức đưa bao thế hệ`,
         return null;
     };
 
-    // Render methods
     if (step === 0) {
         return <LoginPrompt location={location} />;
     }
 
     if (step === 1) {
         return (
-            <ProjectSelection
-                existingProjects={existingProjects}
-                currentProjectPage={currentProjectPage}
-                projectPages={Math.ceil(existingProjects.length / 2)}
-                onProjectSelect={handleProjectSelect}
-                onPageChange={setCurrentProjectPage}
-                navigate={navigate}
-                isLoading={isLoading}
-            />
+            <div className="flex flex-col min-h-screen bg-gray-50 pb-12">
+                {/* --- PHẦN CHỌN DỰ ÁN --- */}
+                <ProjectSelection
+                    existingProjects={existingProjects}
+                    currentProjectPage={currentProjectPage}
+                    projectPages={Math.ceil(existingProjects.length / 2)}
+                    onProjectSelect={handleProjectSelect}
+                    onPageChange={setCurrentProjectPage}
+                    navigate={navigate}
+                    isLoading={isLoading}
+                />
+
+                {/* --- DANH SÁCH KHÁM PHÁ (THEME SÁNG) --- */}
+                <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 mt-8">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2 bg-red-100 rounded-lg">
+                            <Sparkles className="w-6 h-6 text-red-600" />
+                        </div>
+                        <h3 className="text-gray-800 text-2xl font-bold">
+                            BÀI HÁT GỐC
+                        </h3>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {/* Dữ liệu mẫu cho danh sách ngoài */}
+                        {[
+                            { 
+                                id: 1, 
+                                title: "Mở rào", 
+                                icon: <Sparkles className="w-6 h-6"/>, 
+                                image: moCuaRao 
+                            },
+                            { 
+                                id: 2, 
+                                title: "Lý đầu cầu dài", 
+                                icon: <Music className="w-6 h-6"/>,
+                                image: lyDauCauDai 
+                            },
+                            { 
+                                id: 3,
+                                title: "Giã từ", 
+                                icon: <Video className="w-6 h-6"/>,
+                                image: giaTu 
+                            },
+                            { 
+                                id: 4,
+                                title: "Vĩnh Long ngàn xuân", 
+                                icon: <Users className="w-6 h-6"/>,
+                                image: vinhLongNganXuan 
+                            },
+                            { 
+                                id: 5,
+                                title: "Vĩnh Long ngàn xuân", 
+                                icon: <Users className="w-6 h-6"/>,
+                                image: vinhLongNganXuan 
+                            },
+                        ].map((item) => (
+                            <div 
+                                key={item.id} 
+                                className="bg-white rounded-2xl p-4 shadow-md hover:shadow-xl border border-gray-100 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group"
+                            >
+                                {/* Khung hình ảnh */}
+                                <div className="w-full aspect-video bg-gray-100 rounded-xl mb-4 overflow-hidden relative flex items-center justify-center border border-gray-200">
+                                    <img 
+                                        src={item.image}
+                                        alt={item.title}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                            e.target.style.display = 'none';
+                                        }}
+                                    />
+                                </div>
+
+                                {/* Nội dung text */}
+                                <div className="text-left">
+                                    <h4 className="font-bold text-gray-800 text-lg group-hover:text-red-600 transition-colors line-clamp-1">
+                                        {item.title}
+                                    </h4>
+                                    <p className="text-sm text-gray-500 mt-1 line-clamp-2">
+                                        {item.desc}
+                                    </p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
         );
     }
 
@@ -1305,7 +1339,6 @@ Con đò tri thức đưa bao thế hệ`,
                     : "linear-gradient(to bottom, #4B5563, #1F2937)",
             }}
         >
-            {/* Audio Upload Modal */}
             {showAudioModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl transform transition-all">
@@ -1370,7 +1403,6 @@ Con đò tri thức đưa bao thế hệ`,
             )}
 
             <div className="w-full flex flex-col gap-6 max-w-7xl">
-                {/* Navigation Bar */}
                 <div className="absolute top-4 left-4">
                     <button
                         onClick={() => navigate("/lyrics-composition")}
@@ -1381,10 +1413,8 @@ Con đò tri thức đưa bao thế hệ`,
                     </button>
                 </div>
 
-                {/* Project Info */}
                 {selectedProject && (
                     <div className="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-xl p-6 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mt-4 shadow-sm hover:shadow-md transition-shadow duration-300">
-                        {/* Left Section - Project Info */}
                         <div className="flex-1">
                             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
                                 <div className="flex items-center gap-2">
@@ -1400,7 +1430,6 @@ Con đò tri thức đưa bao thế hệ`,
                                 </div>
                             </div>
 
-                            {/* Audio File Status */}
                             {audioFile && (
                                 <div className="flex items-center mt-3 bg-green-50 border border-green-200 rounded-lg px-3 py-2 w-fit">
                                     <CheckCircle2 className="h-4 w-4 text-green-600 mr-2" />
@@ -1411,27 +1440,24 @@ Con đò tri thức đưa bao thế hệ`,
                             )}
                         </div>
 
-                        {/* Right Section - Actions */}
                         <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-                            {/* Audio Upload Button */}
                             <button
                                 onClick={handleOpenAudioUpload}
                                 className={`
-            flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-semibold 
-            transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105
-            min-w-[140px]
-            ${
-                audioFile
-                    ? "bg-orange-500 hover:bg-orange-600 text-white"
-                    : "bg-blue-500 hover:bg-blue-600 text-white"
-            }
-          `}
+                                flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-semibold 
+                                transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105
+                                min-w-[140px]
+                                ${
+                                    audioFile
+                                        ? "bg-orange-500 hover:bg-orange-600 text-white"
+                                        : "bg-blue-500 hover:bg-blue-600 text-white"
+                                }
+                            `}
                             >
                                 <Upload className="h-4 w-4" />
                                 {audioFile ? "Thay đổi nhạc" : "Thêm nhạc"}
                             </button>
 
-                            {/* Video Select */}
                             <div className="relative flex-1 sm:w-[200px]">
                                 <select
                                     id="my-select"
@@ -1441,11 +1467,11 @@ Con đò tri thức đưa bao thế hệ`,
                                         console.log(e.target.value);
                                     }}
                                     className="
-              w-full bg-white border border-gray-300 text-gray-800 px-4 py-2.5 
-              rounded-xl hover:border-gray-400 focus:border-blue-500 focus:ring-2 
-              focus:ring-blue-200 transition-all duration-200 font-medium 
-              shadow-sm hover:shadow-md appearance-none pr-10
-            "
+                                    w-full bg-white border border-gray-300 text-gray-800 px-4 py-2.5 
+                                    rounded-xl hover:border-gray-400 focus:border-blue-500 focus:ring-2 
+                                    focus:ring-blue-200 transition-all duration-200 font-medium 
+                                    shadow-sm hover:shadow-md appearance-none pr-10
+                                "
                                 >
                                     <option value="/videoKaraoke/7135449603513.mp4">
                                         🎬 Video mặc định
@@ -1524,7 +1550,6 @@ Con đò tri thức đưa bao thế hệ`,
                         CountdownOverlay={CountdownOverlay}
                     />
 
-                    {/* Lyrics Panel */}
                     <div className="flex flex-col lg:w-1/3 bg-white bg-opacity-90 rounded-lg p-6 shadow-lg border border-gray-200">
                         <div className="text-center text-lg font-semibold text-gray-800 mb-4">
                             <span className="flex items-center justify-center">
@@ -1552,7 +1577,6 @@ Con đò tri thức đưa bao thế hệ`,
                     </div>
                 </div>
 
-                {/* Control Panel */}
                 {isAnalyzing ? (
                     <div className="flex justify-center text-center bg-black bg-opacity-50 rounded-lg p-6">
                         <div className="flex px-8 py-4 bg-gray-600 rounded-lg text-white space-x-4">
@@ -1628,6 +1652,56 @@ Con đò tri thức đưa bao thế hệ`,
                         isExporting={isExporting}
                     />
                 )}
+
+                {/* --- DANH SÁCH KHÁM PHÁ THÊM (THEME TỐI) --- */}
+                <div className="w-full mt-12 mb-8">
+                    <h3 className="text-white text-xl font-bold mb-6 flex items-center gap-2">
+                        <FolderOpen className="w-6 h-6" />
+                        Khám phá thêm
+                    </h3>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {[
+                            { id: 1, title: "Dự án nổi bật" },
+                            { id: 2, title: "Bài hát gợi ý" },
+                            { id: 3, title: "Video hướng dẫn" },
+                            { id: 4, title: "Cộng đồng chia sẻ" }
+                        ].map((item) => (
+                            <div 
+                                key={item.id} 
+                                className="bg-white bg-opacity-90 backdrop-blur-sm rounded-xl p-4 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group"
+                            >
+                                <div className="w-full aspect-video bg-gray-200 rounded-lg mb-3 overflow-hidden relative flex items-center justify-center border border-gray-100">
+                                    <img 
+                                        src={item.image}
+                                        alt={item.title}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                            e.target.style.display = 'none';
+                                        }}
+                                    />
+                                    {/* Placeholder (Dark theme section) */}
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400 group-hover:text-red-500 transition-colors">
+                                        <div className="bg-white p-3 rounded-full shadow-sm mb-2">
+                                            <ImageIcon className="w-6 h-6" />
+                                        </div>
+                                        <span className="text-xs font-medium">Chưa có ảnh</span>
+                                    </div>
+                                </div>
+
+                                <div className="text-center">
+                                    <h4 className="font-bold text-gray-800 text-lg group-hover:text-red-600 transition-colors line-clamp-1">
+                                        {item.title}
+                                    </h4>
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        Nhấn để xem chi tiết
+                                    </p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
             </div>
         </div>
     );
