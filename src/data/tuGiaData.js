@@ -5,6 +5,7 @@ const tuGiaData = [
   {
     id: 1,
     title: "Bài Giã từ",
+    videoUrl: "https://res.cloudinary.com/dmiuw4ekf/video/upload/v1765267106/giatu_b4gcbc.mov",
     content: `**(Nghệ nhân đờn cò dạo đầu, trống phách gõ theo, kết thúc phần dạo đầu, cái kể vào nhịp)**  
 **Cái kể**: Tiệc bày duyên đã mãn rồi,  
 **Con xô**: Trình trong gia chủ ở đây thái bình.  

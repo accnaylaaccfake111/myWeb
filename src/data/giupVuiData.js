@@ -121,6 +121,8 @@ Cái kể - Con xô: Gia quan tấn lộc
 
 **Mốc thời gian**: Được ghi nhận trong cuộc khảo sát năm 1998 về các bài hát Sắc Bùa Phú Lễ.`,
     image: chucnghelamruong,
+    title: "Chúc nghề làm ruộng",
+      videoUrl: "https://res.cloudinary.com/dmiuw4ekf/video/upload/v1765267108/chucnghelamruong_hju9ax.mp4",
     year: "Truyền thống",
     type: "Giúp vui",
     icon: "🎶",

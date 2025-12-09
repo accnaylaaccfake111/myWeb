@@ -21,6 +21,7 @@ const nghiLeData = [
     id: 1,
     title: "Mở cửa rào",
     page: "339",
+    videoUrl: "https://res.cloudinary.com/dmiuw4ekf/video/upload/v1765267096/mocuarao_ihca2r.mov",
     pageRange: [339],
     pageImages: [page339],
     content: `**Cái kể**: Nhà ông cửa kín rào cao,  
@@ -49,7 +50,7 @@ Cái kể - Con xô: Sai ra mở ngõ, đàn trai tôi hát bùa.
     page: "340",
     pageRange: [340],
     pageImages: [page340],
-    videoUrl: "https://res.cloudinary.com/dmiuw4ekf/video/upload/v1765207603/Mo%CC%9B%CC%89_ngo%CC%83_1_rtoor7.mp4",
+    videoUrl: "https://res.cloudinary.com/dmiuw4ekf/video/upload/v1765267103/mongo_xrocn3.mov",
     content: `**Cái kể**: Ngõ này, ngõ ai  
 Trên thời xây gạch  
 Dưới tợ rồng bay  
@@ -125,6 +126,7 @@ Cái kể - Con xô: Sai ra mở ngõ, chúng tôi hát bùa.
   {
     id: 4,
     title: "Khai môn",
+    videoUrl: "https://res.cloudinary.com/dmiuw4ekf/video/upload/v1765267104/khaimon_izbeid.mov",
     content: `**Cái kể**: Lới đàng trước ra vô bế hộ,  
 Triệu tống sau môn đặng trùng khai.  
 Khai nay trong nhà tinh sạch an bày  
@@ -185,6 +187,7 @@ Cái kể - Con xô: Gia quan tấn lộc.
   {
     id: 6,
     title: "Chơi xuân",
+    videoUrl: "https://res.cloudinary.com/dmiuw4ekf/video/upload/v1765262558/Ch%C6%A1i_xu%C3%A2n_pthou0.mov",
     content: `**Cái kể**: Một năm mười hai tháng,  
 Một tháng là ba mươi ngày.  
 Đầu xuân, chơi xuân có mấy lần,  
@@ -437,6 +440,7 @@ Cái kể - Con xô: Gia quan tấn lộc.
   {
     id: 12,
     title: "Dán bùa cửa giữa",
+    videoUrl: "https://res.cloudinary.com/dmiuw4ekf/video/upload/v1765276141/danbuacuagiua_shcbly.mp4",
     content: `**Cái kể**: Bùa xà thì trấn hai bên  
 Thái cực chúa tiên thì trấn ở giữa  
 Miệng hét ra lửa, tay xách búa đồng  
