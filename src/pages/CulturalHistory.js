@@ -1,6 +1,6 @@
 // frontend/src/pages/CulturalHistory.js
 import React, { useState, useEffect, useRef } from "react";
-import { Search, X, Play, Pause, Music } from "lucide-react";
+import { Search, X, Play, Pause, ChevronDown, ChevronUp, Music } from "lucide-react";
 import culturalForms from "../data/culturalData";
 import choiXuanAudio from "../assets/audio/choixuan.mp3";
 import giaTuAudio from "../assets/audio/giatu.mp3";
@@ -27,6 +27,9 @@ const CulturalHistory = () => {
     const [scrollPositionBeforeExpand, setScrollPositionBeforeExpand] =
         useState(null);
     const [activeFilter, setActiveFilter] = useState("Tất cả");
+    const [isIntroExpanded, setIsIntroExpanded] = useState(false);
+    const introText = `Sắc bùa Phú Lễ là một loại hình diễn xướng dân gian độc đáo, mang đậm dấu ấn văn hóa của cư dân nông nghiệp lúa nước tại Bến Tre. Không chỉ đơn thuần là các bài hát chúc tụng đầu xuân, Sắc bùa còn chứa đựng những giá trị tâm linh sâu sắc, cầu mong mưa thuận gió hòa, mùa màng bội thu và bình an cho gia chủ.
+    Trải qua hàng trăm năm hình thành và phát triển, từ những bài hát truyền thống mộc mạc đến những sáng tác mới mang hơi thở thời đại, Sắc bùa Phú Lễ vẫn giữ nguyên được hồn cốt dân tộc, trở thành di sản văn hóa phi vật thể quý báu cần được gìn giữ và phát huy. Hãy cùng khám phá hành trình lịch sử đầy thú vị này qua các mốc thời gian và tư liệu dưới đây.`;
     const [searchTerm, setSearchTerm] = useState("");
     const [currentView, setCurrentView] = useState("timeline");
     const [typingText, setTypingText] = useState("");
@@ -560,6 +563,52 @@ const CulturalHistory = () => {
                         đến sáng tác hiện đại.
                     </p>
                 </div>
+
+                {/* Intro Card with Read More functionality */}
+                <div className="max-w-4xl mx-auto mb-10">
+                    <div className="bg-white rounded-xl shadow-md border-t-4 border-red-500 overflow-hidden transition-all duration-300 hover:shadow-lg relative">
+                        <div className="p-6 md:p-8">
+                            <h3 className="text-xl font-bold text-red-600 mb-4 flex items-center">
+                                <span className="mr-2">📜</span> Đôi nét về Di sản
+                            </h3>
+                            
+                            <div 
+                                className={`text-gray-700 leading-relaxed text-lg text-justify transition-all duration-700 ease-in-out overflow-hidden relative ${
+                                    isIntroExpanded ? 'max-h-[1000px] opacity-100' : 'max-h-24 opacity-80'
+                                }`}
+                            >
+                                {introText.split('\n').map((paragraph, idx) => (
+                                    <p key={idx} className="mb-4">{paragraph}</p>
+                                ))}
+                                
+                                {/* Hiệu ứng mờ dần khi thu gọn */}
+                                {!isIntroExpanded && (
+                                    <div className="absolute bottom-0 left-0 w-full h-16 bg-gradient-to-t from-white via-white/80 to-transparent"></div>
+                                )}
+                            </div>
+
+                            <div className="mt-4 flex justify-center">
+                                <button
+                                    onClick={() => setIsIntroExpanded(!isIntroExpanded)}
+                                    className="flex items-center gap-2 px-6 py-2 rounded-full bg-red-50 text-red-600 font-semibold hover:bg-red-100 transition-colors duration-300 group"
+                                >
+                                    {isIntroExpanded ? (
+                                        <>
+                                            Thu gọn 
+                                            <ChevronUp size={18} className="transition-transform duration-300 group-hover:-translate-y-1" />
+                                        </>
+                                    ) : (
+                                        <>
+                                            Xem chi tiết 
+                                            <ChevronDown size={18} className="transition-transform duration-300 group-hover:translate-y-1" />
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {/* --- KẾT THÚC CODE MỚI --- */}
 
                 {/* Enhanced Filter Section with better animations */}
                 <div className="mb-8 flex justify-center flex-wrap gap-3">
