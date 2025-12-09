@@ -8,6 +8,8 @@ import chucnghethapruou from "../assets/img/chucnghethapruou.png";
 import chucmungthapruouphule from "../assets/img/chucmungruouphule.png";
 import chiecmutaibeo from "../assets/img/chiecmutaibeo.png";
 import vinhlongnganxuan from "../assets/img/vinhlongnganxuan.png";
+import vinhlongnganxuanSheet from "../assets/img/pages/vinhlongnganxuan.png"
+
 const sangTacMoiData = [
   {
     id: 1,
@@ -428,10 +430,8 @@ Cái kể - Con xô: Có cửa ra vô là dừa chuột khoét
 **Con xô**: Mã Lai trái đỏ
 **Cái kể**: Làm nến thắp tỏ
 **Con xô**: là trái dừa sáp
-**Cái kể**: 
-**Con xô**: 
-**Cái kể**: 
-**Con xô**: 
+**Cái kể**: Quấn nhừ rồi táp
+**Con xô**: Là dừa trăng ăn
 **Cái kể**: Mọc răng trên đầu
 **Con xô**: là trái dừa mộng 
 **Cái kể**: Cộng đi cộng lại
@@ -483,6 +483,9 @@ Cái kể - Con xô: Đón chào xuân mới… xuân son rạng ngời.
     year: "2025",
     type: "Sáng tác mới",
     icon: "🎶",
+    page: "1",
+    pageRange: [1],
+    pageImages: [vinhlongnganxuanSheet],
     description:
       "Bài hát được 2 bạn học sinh Bùi Thái Hiển và Bùi Phước Thông sáng tác năm 2025, ngay sau khi Bến Tre, Trà Vinh, Vĩnh Long chính thức sáp nhập thành tỉnh Vĩnh Long mới (hiệu lực 1/7/2025). Tác phẩm nhằm khẳng định tình đoàn kết, chung một lòng của nhân dân ba tỉnh, khơi dậy niềm tự hào quê hương, lịch sử và khát vọng xây dựng tỉnh mới giàu mạnh, trù phú.",
     modernDevelopment:

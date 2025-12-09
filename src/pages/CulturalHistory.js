@@ -1,6 +1,6 @@
 // frontend/src/pages/CulturalHistory.js
 import React, { useState, useEffect, useRef } from "react";
-import { Search, X, Play, Pause, ChevronDown, ChevronUp, Music } from "lucide-react";
+import { Search, X, Play, Pause, ChevronDown, ChevronUp, Music, FileText } from "lucide-react";
 import culturalForms from "../data/culturalData";
 import choiXuanAudio from "../assets/audio/choixuan.mp3";
 import giaTuAudio from "../assets/audio/giatu.mp3";
@@ -18,6 +18,9 @@ import moNgo from "../assets/audio/mongo.mp3"
 import tienSu from "../assets/audio/tiensu.mp3"
 import veCacLoaiDua from "../assets/audio/vecacloaidua.mp3"
 import xocQuach from "../assets/audio/xocquach.mp3"
+
+//import doc
+import lichSu from "../assets/document/lichsu.pdf"
 
 const CulturalHistory = () => {
     const [filter, setFilter] = useState("Tất cả");
@@ -569,7 +572,7 @@ const CulturalHistory = () => {
                     <div className="bg-white rounded-xl shadow-md border-t-4 border-red-500 overflow-hidden transition-all duration-300 hover:shadow-lg relative">
                         <div className="p-6 md:p-8">
                             <h3 className="text-xl font-bold text-red-600 mb-4 flex items-center">
-                                <span className="mr-2">📜</span> Đôi nét về Di sản
+                                <span className="mr-2">📜</span> Nguồn gốc, lịch sử của hát Sắc Bùa Phú Lễ
                             </h3>
                             
                             <div 
@@ -587,10 +590,12 @@ const CulturalHistory = () => {
                                 )}
                             </div>
 
-                            <div className="mt-4 flex justify-center">
+                            {/* --- BẮT ĐẦU ĐOẠN CODE NÚT BẤM MỚI --- */}
+                            <div className="mt-6 flex flex-wrap justify-center gap-4">
+                                {/* Nút 1: Xem chi tiết / Thu gọn */}
                                 <button
                                     onClick={() => setIsIntroExpanded(!isIntroExpanded)}
-                                    className="flex items-center gap-2 px-6 py-2 rounded-full bg-red-50 text-red-600 font-semibold hover:bg-red-100 transition-colors duration-300 group"
+                                    className="flex items-center gap-2 px-6 py-2 rounded-full bg-red-50 text-red-600 font-semibold hover:bg-red-100 transition-colors duration-300 group shadow-sm border border-red-100"
                                 >
                                     {isIntroExpanded ? (
                                         <>
@@ -599,11 +604,24 @@ const CulturalHistory = () => {
                                         </>
                                     ) : (
                                         <>
-                                            Xem chi tiết 
+                                            Xem tóm tắt 
                                             <ChevronDown size={18} className="transition-transform duration-300 group-hover:translate-y-1" />
                                         </>
                                     )}
                                 </button>
+
+                                {/* Nút 2: Tìm hiểu thêm (PDF) - Chỉ hiện khi đã mở rộng */}
+                                {isIntroExpanded && (
+                                    <a
+                                        href={lichSu} 
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-2 px-6 py-2 rounded-full bg-red-600 text-white font-semibold hover:bg-red-700 transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1"
+                                    >
+                                        <FileText size={18} />
+                                        Tìm hiểu thêm 
+                                    </a>
+                                )}
                             </div>
                         </div>
                     </div>
