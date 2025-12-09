@@ -206,7 +206,7 @@ Cái kể - Con xô: Gia quan tấn lộc.
 
 **Mốc thời gian**: Được ghi nhận trong cuộc khảo sát năm 1998 về các bài hát Sắc Bùa Phú Lễ.`,
     image: choixuan,
-    videoUrl: "https://res.cloudinary.com/dmiuw4ekf/video/upload/v1765241733/choi-xuan_be4pzm.mp4"
+    videoUrl: "https://res.cloudinary.com/dmiuw4ekf/video/upload/v1765241733/choi-xuan_be4pzm.mp4",
     year: "Truyền thống",
     type: "Nghi lễ",
     icon: "🎶",
