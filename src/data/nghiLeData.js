@@ -21,6 +21,8 @@ const nghiLeData = [
     id: 1,
     title: "Mở cửa rào",
     page: "339",
+    pageRange: [339],
+    pageImages: [page339],
     videoUrl: "https://res.cloudinary.com/dmiuw4ekf/video/upload/v1765267096/mocuarao_ihca2r.mov",
     pageRange: [339],
     pageImages: [page339],

@@ -92,6 +92,9 @@ Cái kể - Con xô: Gia quan tấn lộc
   {
     id: 2,
     title: "Chúc nghề làm ruộng",
+    page: "441-442",
+    pageRange: [341, 442],
+    pageImages: [page341, page342], // Thêm mảng ảnh trang
     content: `**Cái kể**: Thiên ư tí!  
 Địa ư sửu!  
 Nhân ư dần!  
@@ -278,6 +281,9 @@ Cái kể - Con xô: Gia quan tấn lộc
   {
     id: 6,
     title: "Chúc nghề thợ mộc",
+    page: "343",
+    pageRange: [343],
+    pageImages: [page343], // Thêm mảng ảnh trang
     content: `**Cái kể**: Đời thượng cổ ở hang, nằm nội  
 Bị độc sùng thảm hại với người  
 Hữu Sà ra đời dạy gác cây cao làm tổ  
@@ -317,6 +323,9 @@ Cái kể - Con xô: Gia quan tấn lộc
   {
     id: 7,
     title: "Chúc nghề thợ hồ",
+    page: "344-345",
+    pageRange: [344, 345],
+    pageImages: [page344, page345], // Thêm mảng ảnh trang
     content: `**Cái kể**: Nhớ thuở xưa có bà Cửu Thiên  
 Giúp các thợ, thợ nào cũng đặng bình yên  
 Chuyên nghề thợ hồ  
@@ -411,6 +420,9 @@ Cái kể - Con xô: Say cho quên hết lời em dặn dò
   {
     id: 9,
     title: "Lý Lơ thơ",
+    page: "355-357",
+    pageRange: [355, 356, 357],
+    pageImages: [page355, page356, page357], // Thêm mảng ảnh trang
     content: `**Cái kể**: Lơ thơ tơ liễu buông mành  
 Con chim oanh oanh mà học nói trên nhành mỉa mai  
 (Nghệ nhân đờn cò dạo đầu, cái kể vào nhịp)  
@@ -481,6 +493,9 @@ Cái kể - Con xô: Trống trên lầu vội đổ tam quan
   {
     id: 11,
     title: "Lý Mười hai tháng",
+    page: "358-363",
+    pageRange: [358, 359, 360, 361, 362, 363],
+    pageImages: [page358, page359, page360, page361, page362, page363], // Thêm mảng ảnh trang
     content: `**Cái kể**: Kính thưa cô bác xóm làng  
 Chúc xuân mà tôi hát sắc bùa tháng Giêng  
 (Nghệ nhân đờn cò dạo đầu, cái kể vào nhịp)  
