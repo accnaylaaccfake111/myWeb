@@ -9,6 +9,7 @@ import chucmungthapruouphule from "../assets/img/chucmungruouphule.png";
 import chiecmutaibeo from "../assets/img/chiecmutaibeo.png";
 import vinhlongnganxuan from "../assets/img/vinhlongnganxuan.png";
 import vinhlongnganxuanSheet from "../assets/img/pages/vinhlongnganxuan.png"
+import veCayDuaBenTre from "../assets/img/vecayduabentre.png"
 
 const sangTacMoiData = [
   {
@@ -441,7 +442,7 @@ Quê dừa Đồng khởi
 
 
 **Mốc thời gian**: Sáng tác tháng 12/1976, được ghi nhận trong cuộc khảo sát từ năm 2014.`,
-    image: vienglangbac,
+    image: veCayDuaBenTre,
     year: "2017",
     type: "Sáng tác mới",
     icon: "🎶",
