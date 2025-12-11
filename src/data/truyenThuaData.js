@@ -1,6 +1,15 @@
 import chuyendevan from "../assets/img/chuyenDeVan.JPG";
 import giaoluuthpt from "../assets/img/giaoLuuTHPT.png";
 import giaoluuNgheNhan from "../assets/img/giaoLuuNgheNhan.JPG"
+import ngheNhan1 from "../assets/img/nghenhan1.JPG"
+import ngheNhan2 from "../assets/img/nghenhan2.JPG"
+import ngheNhan3 from "../assets/img/nghenhan3.JPG"
+import chuyenDeVan1 from "../assets/img/cdv1.JPG"
+import chuyenDeVan2 from "../assets/img/cdv2.JPG"
+import chuyenDeVan3 from "../assets/img/cdv3.JPG"
+import nguyenHue1 from "../assets/img/nh1.JPG"
+import nguyenHue2 from "../assets/img/nh2.JPG"
+import nguyenHue3 from "../assets/img/nh3.JPG"
 
 const truyenThuaData = [
   {
@@ -11,6 +20,11 @@ const truyenThuaData = [
     year: "GIAO LƯU VỚI NGHỆ NHÂN",
     type: "Truyền thừa",
     icon: "👨🏻‍💼",
+    gallery: [
+        ngheNhan1,
+        ngheNhan2,
+        ngheNhan3,
+    ]
   },
   {
     id: 2,
@@ -20,6 +34,11 @@ const truyenThuaData = [
     year: "CHUYÊN ĐỀ VĂN",
     type: "Truyền thừa",
     icon: "🎶",
+    gallery: [
+        chuyenDeVan1,
+        chuyenDeVan2,
+        chuyenDeVan3,
+    ]
   },
   {
     id: 3,
@@ -29,6 +48,11 @@ const truyenThuaData = [
     year: "GIAO LƯU VỚI TRƯỜNG THPT",
     type: "Truyền thừa",
     icon: "🎤",
+    gallery: [
+        // nguyenHue1,
+        nguyenHue2,
+        nguyenHue3,
+    ]
   },
 ];
 

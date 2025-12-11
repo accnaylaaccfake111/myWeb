@@ -30,7 +30,7 @@ const hatSacBuaData = [
   {
     id: 2,
     title: "ĐỜN CÒ",
-    icon: "🧺",
+    icon: "🪕",
     type: "Nhạc cụ Sắc Bùa",
     videoUrl: "https://res.cloudinary.com/dmiuw4ekf/video/upload/v1765427419/danco_unsiwl.mov",
     content: `Đờn cò chủ yếu là để diễn tấu phần giai điệu nền cho cuộc hát.`,
@@ -39,7 +39,7 @@ const hatSacBuaData = [
   {
     id: 3,
     title: "SANH TIỀN",
-    icon: "🧶",
+    icon: "🎶",
     type: "Nhạc cụ Sắc Bùa",
     videoUrl: "https://res.cloudinary.com/dmiuw4ekf/video/upload/v1704044941/hatsacbua/chucnghetrongbong.mp4",
     content: `Sanh tiền là một nhạc cụ của hát Sắc bùa Phú Lễ tạo âm thanh vui nhộn`,
@@ -48,7 +48,7 @@ const hatSacBuaData = [
   {
     id: 4,
     title: "SANH CÁI",
-    icon: "👨🏻‍🏫",
+    icon: "🎵",
     type: "Nhạc cụ Sắc Bùa",
     videoUrl: "https://res.cloudinary.com/dmiuw4ekf/video/upload/v1765427244/sanhtien_tmegia.mov",
     content: `Sanh cái dùng để gõ nhịp`,

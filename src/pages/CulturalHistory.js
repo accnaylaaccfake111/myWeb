@@ -609,24 +609,61 @@ const CulturalHistory = () => {
                                                             </div>
                                                         )}
 
-                                                        {/* Section for "Truyền thừa" */}
                                                         {form.type === "Truyền thừa" && (
-                                                            <div className="p-4">
-                                                                <div className="mb-4 expanded-image-container">
-                                                                    <img src={form.image || "/placeholder.png"} alt={form.title} onClick={(e) => handleImageEnlarge(form.image, e)} className="w-full h-64 lg:h-80 object-cover rounded-xl shadow-md expanded-image cursor-pointer" />
-                                                                </div>
-                                                                <div className="flex items-center mb-4">
-                                                                    <span className="text-3xl mr-3 icon-bounce">{form.icon}</span>
-                                                                    <div className="flex-1">
-                                                                        <h3 className="text-2xl font-bold text-gray-800 title-glow">{form.title}</h3>
-                                                                        <p className="text-base text-red-600 year-badge-expanded">{form.year} • {form.type}</p>
-                                                                    </div>
-                                                                </div>
-                                                                <div className="text-gray-700 text-lg leading-relaxed bg-gray-50 rounded-lg p-4 description-expanded">
-                                                                    {form.content}
-                                                                </div>
-                                                            </div>
-                                                        )}
+    <div className="p-4">
+        {/* Ảnh chính */}
+        <div className="mb-4 expanded-image-container">
+            <img 
+                src={form.image || "/placeholder.png"} 
+                alt={form.title} 
+                onClick={(e) => handleImageEnlarge(form.image, e)} 
+                className="w-full h-64 lg:h-80 object-cover rounded-xl shadow-md expanded-image cursor-pointer hover:opacity-95 transition-opacity" 
+            />
+        </div>
+
+        {/* Tiêu đề & Loại */}
+        <div className="flex items-center mb-4">
+            <span className="text-3xl mr-3 icon-bounce">{form.icon}</span>
+            <div className="flex-1">
+                <h3 className="text-2xl font-bold text-gray-800 title-glow">{form.title}</h3>
+                <p className="text-base text-red-600 year-badge-expanded">{form.year} • {form.type}</p>
+            </div>
+        </div>
+
+        {/* Nội dung bài viết */}
+        <div className="text-gray-700 text-lg leading-relaxed bg-gray-50 rounded-lg p-4 description-expanded mb-6">
+            {form.content}
+        </div>
+
+        {/* --- PHẦN MỚI: ALBUM ẢNH (GALLERY) --- */}
+        {form.gallery && form.gallery.length > 0 && (
+            <div className="mt-4">
+                <h4 className="text-lg font-bold text-red-600 mb-3 border-l-4 border-red-500 pl-3">
+                    Hình ảnh hoạt động
+                </h4>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {form.gallery.map((imgSrc, imgIndex) => (
+                        <div 
+                            key={imgIndex} 
+                            className="relative group overflow-hidden rounded-lg shadow-sm cursor-pointer"
+                            onClick={(e) => handleImageEnlarge(imgSrc, e)}
+                        >
+                            <img 
+                                src={imgSrc} 
+                                alt={`Ảnh hoạt động ${imgIndex + 1}`} 
+                                className="w-full h-32 md:h-40 object-cover transition-transform duration-500 group-hover:scale-110" 
+                            />
+                            {/* Hiệu ứng phủ mờ khi hover */}
+                            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
+                                <span className="text-white opacity-0 group-hover:opacity-100 font-bold text-xl">+</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        )}
+    </div>
+)}
                                                     </div>
                                                 )}
                                             </div>
