@@ -156,6 +156,7 @@ Cái kể - Con xô: Gia quan tấn lộc.
   {
     id: 5,
     title: "Rước xuân",
+    videoUrl: "https://res.cloudinary.com/dmiuw4ekf/video/upload/v1765428625/ruocxuan_hmo8sh.mov",
     content: `**Cái kể**: Đêm ba mươi là đêm trừ tịch,  
 Nửa canh ba chánh đán nguơn tiêu,  
 Ngoài sân mừng quân tử dựng nêu,  
@@ -189,7 +190,7 @@ Cái kể - Con xô: Gia quan tấn lộc.
   {
     id: 6,
     title: "Chơi xuân",
-    videoUrl: "https://res.cloudinary.com/dmiuw4ekf/video/upload/v1765262558/Ch%C6%A1i_xu%C3%A2n_pthou0.mov",
+    videoUrl: "https://res.cloudinary.com/dmiuw4ekf/video/upload/v1765428776/choixuan_ns5fui.mov",
     content: `**Cái kể**: Một năm mười hai tháng,  
 Một tháng là ba mươi ngày.  
 Đầu xuân, chơi xuân có mấy lần,  
