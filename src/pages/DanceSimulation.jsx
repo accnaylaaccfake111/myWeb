@@ -12,6 +12,9 @@ import {
 } from "lucide-react";
 import { storage } from "../utils/storage";
 
+// --- CẤU HÌNH API ---
+const API_BASE_URL = process.env.REACT_APP_3D_API || "http://localhost:8080";
+
 const DanceSimulation = ({ isLoggedIn }) => {
   const [step, setStep] = useState(isLoggedIn ? 0 : -1);
   const [videoFile, setVideoFile] = useState(null);
@@ -24,6 +27,17 @@ const DanceSimulation = ({ isLoggedIn }) => {
 
   const tempPoseData = useRef(null);
   const navigate = useNavigate();
+
+  // --- HELPER: Lấy Header có Auth ---
+  const getHeaders = useCallback(() => {
+    const token = storage.getAccessToken();
+    return {
+      "Accept": "text/event-stream", // Quan trọng để nhận Stream
+      "Authorization": `Bearer ${token}`,
+      "ngrok-skip-browser-warning": "true",
+      // KHÔNG set Content-Type là application/json vì đang gửi FormData
+    };
+  }, []);
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -54,7 +68,7 @@ const DanceSimulation = ({ isLoggedIn }) => {
 
     // Loại bỏ tiền tố "data:" hoặc "log" từ Server Java/Python
     if (content.startsWith("data:")) content = content.slice(5).trim();
-    if (content.startsWith("log")) content = content.slice(3).trim(); // Fix thêm trường hợp log dính chữ "log"
+    if (content.startsWith("log")) content = content.slice(3).trim();
 
     if (content === "" || content === "ping") return;
 
@@ -75,7 +89,6 @@ const DanceSimulation = ({ isLoggedIn }) => {
       } catch (e) {
         console.warn("Regex parsing error:", e);
       }
-      // Text log thì không cần parse JSON nữa
       return;
     }
 
@@ -106,7 +119,7 @@ const DanceSimulation = ({ isLoggedIn }) => {
           checkCompletionAndFinish();
         }
       } catch (e) {
-        // Ignored
+        // Ignored non-json lines
       }
     }
   }, []);
@@ -154,6 +167,7 @@ const DanceSimulation = ({ isLoggedIn }) => {
     [processEvent]
   );
 
+  // --- HÀM GỌI API (ĐÃ CẬP NHẬT HEADER & URL) ---
   const handleProcessVideo = async () => {
     setIsProcessing(true);
     setPoseData(null);
@@ -171,24 +185,24 @@ const DanceSimulation = ({ isLoggedIn }) => {
     const formData = new FormData();
     formData.append("file", videoFile);
 
+    // Lấy thông tin User từ Storage để gửi kèm (nếu Backend cần log)
     const user = storage.getUser();
-    formData.append("user_id", user?.id || "");
+    formData.append("user_id", user?.username || ""); // Dùng username làm ID định danh tạm
     formData.append("title", user?.username || "Guest");
-
-    const apiUrl = process.env.REACT_APP_3D_API || "http://localhost:8080";
 
     try {
       const response = await fetch(
-        `${apiUrl}/api/video-3d/process-single-video-stream`,
+        `${API_BASE_URL}/api/video-3d/process-single-video-stream`,
         {
           method: "POST",
-          headers: {
-            Accept: "text/event-stream",
-            "ngrok-skip-browser-warning": "true",
-          },
+          headers: getHeaders(), // Sử dụng Header có Auth
           body: formData,
         }
       );
+
+      if (response.status === 401) {
+        throw new Error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
+      }
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -197,7 +211,7 @@ const DanceSimulation = ({ isLoggedIn }) => {
       await processStreamResponse(response);
     } catch (error) {
       console.error("Error processing video:", error);
-      setError("Có lỗi xảy ra khi kết nối Server (8080).");
+      setError(error.message || "Có lỗi xảy ra khi kết nối Server.");
       setIsProcessing(false);
     }
   };
@@ -220,6 +234,7 @@ const DanceSimulation = ({ isLoggedIn }) => {
     };
   }, [videoPreview]);
 
+  // --- UI ---
   if (step === -1) {
     return (
       <div className="flex items-center justify-center bg-gray-50 px-12 py-6">

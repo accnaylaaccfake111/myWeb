@@ -178,3 +178,36 @@ export const fetchFaceSwapProjects = async (
         setLoadingFaceSwap(false);
     }
 };
+
+
+export const fetchDanceSimulationProjects = async (
+    setDanceSimulationProjects,
+    setLoadingDanceSimulation,
+    setError,
+) => {
+    try {
+        setLoadingDanceSimulation(true);
+        const data = await projectService.fetchDanceSimulationProjects();
+        setDanceSimulationProjects(data);
+    } catch (err) {
+        setError(err.message);
+    } finally {
+        setLoadingDanceSimulation(false);
+    }
+};
+
+export const fetchClothSwapProjects = async (
+    setClothSwapProjects,
+    setLoadingClothSwap,
+    setError,
+) => {
+    try {
+        setLoadingClothSwap(true);
+        const data = await projectService.fetchClothSwapProjects();
+        setClothSwapProjects(data);
+    } catch (err) {
+        setError(err.message);
+    } finally {
+        setLoadingClothSwap(false);
+    }
+};

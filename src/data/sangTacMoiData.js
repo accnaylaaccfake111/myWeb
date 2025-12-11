@@ -410,7 +410,8 @@ Dừa sai trái dữ
 **Con xô**: là trái dừa lửa
 **Cái kể**: Khỏi chùi khỏi rửa
 **Con xô**: là trái dừa khô
-Cái kể - Con xô: Có cửa ra vô là dừa chuột khoét
+**Cái kể**:  Có cửa ra vô
+**Con xô**: là dừa chuột khoét
 **Cái kể**: Cá vô mắc kẹt 
 **Con xô**: là trái dừa bung
 **Cái kể**: Mắc - gai mọc cùng
