@@ -80,3 +80,32 @@ export const fetchSheetMusicProjects = async (
         setLoadingSheetMusic(false);
     }
 };
+
+// Fetch available music (bài hát gốc)
+export const fetchAvailableMusic = async () => {
+    try {
+        const token = storage.getAccessToken();
+
+        const response = await fetch(`${API_BASE_URL}/api/available-music`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: "application/json",
+                "ngrok-skip-browser-warning": true,
+            },
+        });
+
+        const result = await response.json();
+        console.log("Available music:", result);
+
+        if (result.success) {
+            return result.data;
+        } else {
+            console.error("Error fetching available music:", result.message);
+            return [];
+        }
+    } catch (err) {
+        console.error("Error fetching available music:", err);
+        return [];
+    }
+};

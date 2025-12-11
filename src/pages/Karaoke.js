@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { fetchSheetMusicProjects, getFaceData } from "../services/getDataApi";
+import { fetchSheetMusicProjects, getFaceData, fetchAvailableMusic } from "../services/getDataApi";
 import { formatLyrics } from "../utils/util";
 import { Link } from "react-router-dom";
 
@@ -147,6 +147,10 @@ Con đò tri thức đưa bao thế hệ`,
     const [videoSelect, setVideoSelect] = useState(null);
     const [isExporting, setIsExporting] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [availableMusic, setAvailableMusic] = useState([]);
+    const [isLoadingAvailableMusic, setIsLoadingAvailableMusic] = useState(false);
+    const [selectedMusicForChoice, setSelectedMusicForChoice] = useState(null);
+    const [showMusicTypeModal, setShowMusicTypeModal] = useState(false);
 
     // Refs
     const audioChunksRef = useRef([]);
@@ -185,8 +189,15 @@ Con đò tri thức đưa bao thế hệ`,
                 () => {},
             );
             setListVideo(faceData);
+            
+            // Fetch available music
+            setIsLoadingAvailableMusic(true);
+            const musicList = await fetchAvailableMusic();
+            setAvailableMusic(musicList || []);
+            setIsLoadingAvailableMusic(false);
         } catch (error) {
             console.error("Error fetching initial data:", error);
+            setIsLoadingAvailableMusic(false);
         }
         setIsLoading(false);
     };
@@ -1079,6 +1090,85 @@ Con đò tri thức đưa bao thế hệ`,
         }
     };
 
+    const handleAvailableMusicSelect = (music) => {
+        console.log("🎵 Selected music:", music);
+        console.log("🎵 musicUrl:", music.musicUrl);
+        console.log("🎵 musicWithLyricsUrl:", music.musicWithLyricsUrl);
+        
+        // Kiểm tra xem có cả hai loại nhạc không (cả hai đều phải có giá trị và không rỗng)
+        const hasMusicUrl = music.musicUrl && music.musicUrl.trim() !== "";
+        const hasMusicWithLyricsUrl = music.musicWithLyricsUrl && music.musicWithLyricsUrl.trim() !== "";
+        const hasBothTypes = hasMusicUrl && hasMusicWithLyricsUrl;
+        
+        console.log("🎵 Has musicUrl:", hasMusicUrl);
+        console.log("🎵 Has musicWithLyricsUrl:", hasMusicWithLyricsUrl);
+        console.log("🎵 Has both types:", hasBothTypes);
+        
+        if (hasBothTypes) {
+            // Hiển thị modal chọn loại nhạc
+            console.log("🎵 Showing music type modal");
+            setSelectedMusicForChoice(music);
+            setShowMusicTypeModal(true);
+        } else {
+            // Chỉ có một loại hoặc không có, chọn trực tiếp
+            const selectedUrl = music.musicWithLyricsUrl || music.musicUrl;
+            console.log("🎵 Proceeding directly with:", selectedUrl);
+            proceedWithMusicSelection(music, selectedUrl);
+        }
+    };
+
+    const proceedWithMusicSelection = (music, selectedMusicUrl) => {
+        // Reset các state trước khi chọn bài hát mới
+        resetSessionState();
+        stopAudio();
+        setIsPlaying(false);
+        setIsRecording(false);
+        setRecordingStatus("idle");
+        
+        // Format lyrics nếu có
+        const formattedLyrics = music.lyrics ? formatLyrics(music.lyrics) : "";
+        
+        const newProject = {
+            id: music.id,
+            name: music.title || "Bài hát gốc",
+            date: new Date().toLocaleDateString("vi-VN"),
+            rating: 3,
+            lyrics: formattedLyrics,
+            audio: selectedMusicUrl || null,
+            video: videoSelect || null,
+            isSaved: false,
+            type: "Karaoke và Chấm điểm",
+            genre: "Dân ca",
+            difficulty: "Trung bình",
+        };
+        
+        setSelectedProject(newProject);
+        setLyrics(formattedLyrics);
+        
+        if (selectedMusicUrl) {
+            setAudioFile(selectedMusicUrl);
+        } else {
+            setShowAudioModal(true);
+        }
+        
+        // Đóng modal chọn loại nhạc nếu đang mở
+        setShowMusicTypeModal(false);
+        setSelectedMusicForChoice(null);
+        
+        // Chuyển sang step 2 (karaoke display)
+        setStep(2);
+    };
+
+    const handleMusicTypeSelection = (musicType) => {
+        if (!selectedMusicForChoice) return;
+        
+        const selectedUrl = musicType === 'withLyrics' 
+            ? selectedMusicForChoice.musicWithLyricsUrl 
+            : selectedMusicForChoice.musicUrl;
+        
+        proceedWithMusicSelection(selectedMusicForChoice, selectedUrl);
+    };
+
     const handleSave = () => {
         if (selectedProject) {
             setExistingProjects((prev) =>
@@ -1241,6 +1331,66 @@ Con đò tri thức đưa bao thế hệ`,
     if (step === 1) {
         return (
             <div className="flex flex-col min-h-screen bg-gray-50 pb-12">
+                {/* Modal chọn loại nhạc - Step 1 */}
+                {showMusicTypeModal && selectedMusicForChoice && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                        <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl transform transition-all">
+                            <div className="text-center mb-6">
+                                <div className="w-16 h-16 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-4">
+                                    <Music className="h-8 w-8 text-red-600" />
+                                </div>
+                                <h3 className="text-xl font-bold text-gray-800 mb-2">
+                                    Chọn loại nhạc
+                                </h3>
+                                <p className="text-gray-600 mb-4">
+                                    Bạn muốn sử dụng nhạc có lời hay không có lời?
+                                </p>
+                                <p className="text-sm text-gray-500 mb-6">
+                                    <strong>{selectedMusicForChoice.title}</strong>
+                                </p>
+                            </div>
+
+                            <div className="space-y-4">
+                                {selectedMusicForChoice.musicWithLyricsUrl && (
+                                    <button
+                                        onClick={() => handleMusicTypeSelection('withLyrics')}
+                                        className="w-full bg-gradient-to-r from-red-600 to-pink-600 text-white px-4 py-4 rounded-lg hover:from-red-700 hover:to-pink-700 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105 flex items-center justify-center gap-3"
+                                    >
+                                        <Music className="w-5 h-5" />
+                                        <div className="text-left">
+                                            <div className="font-bold">Nhạc có lời (Karaoke)</div>
+                                            <div className="text-xs opacity-90">File nhạc đã có sẵn lời bài hát</div>
+                                        </div>
+                                    </button>
+                                )}
+
+                                {selectedMusicForChoice.musicUrl && (
+                                    <button
+                                        onClick={() => handleMusicTypeSelection('withoutLyrics')}
+                                        className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-4 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105 flex items-center justify-center gap-3"
+                                    >
+                                        <Music className="w-5 h-5" />
+                                        <div className="text-left">
+                                            <div className="font-bold">Nhạc không lời</div>
+                                            <div className="text-xs opacity-90">File nhạc gốc, không có lời</div>
+                                        </div>
+                                    </button>
+                                )}
+
+                                <button
+                                    onClick={() => {
+                                        setShowMusicTypeModal(false);
+                                        setSelectedMusicForChoice(null);
+                                    }}
+                                    className="w-full bg-gray-300 text-gray-800 px-4 py-3 rounded-lg hover:bg-gray-400 transition-all duration-200 font-semibold"
+                                >
+                                    Hủy
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* --- PHẦN CHỌN DỰ ÁN --- */}
                 <ProjectSelection
                     existingProjects={existingProjects}
@@ -1263,68 +1413,62 @@ Con đò tri thức đưa bao thế hệ`,
                         </h3>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {/* Dữ liệu mẫu cho danh sách ngoài */}
-                        {[
-                            { 
-                                id: 1, 
-                                title: "Mở rào", 
-                                icon: <Sparkles className="w-6 h-6"/>, 
-                                image: moCuaRao 
-                            },
-                            { 
-                                id: 2, 
-                                title: "Lý đầu cầu dài", 
-                                icon: <Music className="w-6 h-6"/>,
-                                image: lyDauCauDai 
-                            },
-                            { 
-                                id: 3,
-                                title: "Giã từ", 
-                                icon: <Video className="w-6 h-6"/>,
-                                image: giaTu 
-                            },
-                            { 
-                                id: 4,
-                                title: "Vĩnh Long ngàn xuân", 
-                                icon: <Users className="w-6 h-6"/>,
-                                image: vinhLongNganXuan 
-                            },
-                            { 
-                                id: 5,
-                                title: "Vĩnh Long ngàn xuân", 
-                                icon: <Users className="w-6 h-6"/>,
-                                image: vinhLongNganXuan 
-                            },
-                        ].map((item) => (
-                            <div 
-                                key={item.id} 
-                                className="bg-white rounded-2xl p-4 shadow-md hover:shadow-xl border border-gray-100 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group"
-                            >
-                                {/* Khung hình ảnh */}
-                                <div className="w-full aspect-video bg-gray-100 rounded-xl mb-4 overflow-hidden relative flex items-center justify-center border border-gray-200">
-                                    <img 
-                                        src={item.image}
-                                        alt={item.title}
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => {
-                                            e.target.style.display = 'none';
-                                        }}
-                                    />
-                                </div>
+                    {isLoadingAvailableMusic ? (
+                        <div className="flex justify-center items-center py-12">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+                            <span className="ml-4 text-gray-600">Đang tải danh sách bài hát...</span>
+                        </div>
+                    ) : availableMusic.length === 0 ? (
+                        <div className="text-center py-12 text-gray-500">
+                            <Music className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                            <p>Chưa có bài hát nào trong danh sách</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {availableMusic.map((music) => (
+                                <div 
+                                    key={music.id} 
+                                    onClick={() => handleAvailableMusicSelect(music)}
+                                    className="bg-white rounded-2xl p-4 shadow-md hover:shadow-xl border border-gray-100 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group"
+                                >
+                                    {/* Khung hình ảnh */}
+                                    <div className="w-full aspect-video bg-gray-100 rounded-xl mb-4 overflow-hidden relative flex items-center justify-center border border-gray-200">
+                                        {music.avatarUrl ? (
+                                            <img 
+                                                src={music.avatarUrl}
+                                                alt={music.title || "Bài hát"}
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => {
+                                                    e.target.style.display = 'none';
+                                                    e.target.nextElementSibling.style.display = 'flex';
+                                                }}
+                                            />
+                                        ) : null}
+                                        <div 
+                                            className={`absolute inset-0 flex items-center justify-center ${music.avatarUrl ? 'hidden' : 'flex'}`}
+                                        >
+                                            <div className="text-center">
+                                                <Music className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                                                <span className="text-xs text-gray-500">Chưa có ảnh</span>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                {/* Nội dung text */}
-                                <div className="text-left">
-                                    <h4 className="font-bold text-gray-800 text-lg group-hover:text-red-600 transition-colors line-clamp-1">
-                                        {item.title}
-                                    </h4>
-                                    <p className="text-sm text-gray-500 mt-1 line-clamp-2">
-                                        {item.desc}
-                                    </p>
+                                    {/* Nội dung text */}
+                                    <div className="text-left">
+                                        <h4 className="font-bold text-gray-800 text-lg group-hover:text-red-600 transition-colors line-clamp-1">
+                                            {music.title || "Bài hát không có tên"}
+                                        </h4>
+                                        {music.lyrics && (
+                                            <p className="text-sm text-gray-500 mt-1 line-clamp-2">
+                                                {music.lyrics.substring(0, 100)}...
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
         );
@@ -1339,6 +1483,65 @@ Con đò tri thức đưa bao thế hệ`,
                     : "linear-gradient(to bottom, #4B5563, #1F2937)",
             }}
         >
+            {showMusicTypeModal && selectedMusicForChoice && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl transform transition-all">
+                        <div className="text-center mb-6">
+                            <div className="w-16 h-16 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-4">
+                                <Music className="h-8 w-8 text-red-600" />
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-800 mb-2">
+                                Chọn loại nhạc
+                            </h3>
+                            <p className="text-gray-600 mb-4">
+                                Bạn muốn sử dụng nhạc có lời hay không có lời?
+                            </p>
+                            <p className="text-sm text-gray-500 mb-6">
+                                <strong>{selectedMusicForChoice.title}</strong>
+                            </p>
+                        </div>
+
+                        <div className="space-y-4">
+                            {selectedMusicForChoice.musicWithLyricsUrl && (
+                                <button
+                                    onClick={() => handleMusicTypeSelection('withLyrics')}
+                                    className="w-full bg-gradient-to-r from-red-600 to-pink-600 text-white px-4 py-4 rounded-lg hover:from-red-700 hover:to-pink-700 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105 flex items-center justify-center gap-3"
+                                >
+                                    <Music className="w-5 h-5" />
+                                    <div className="text-left">
+                                        <div className="font-bold">Nhạc có lời (Karaoke)</div>
+                                        <div className="text-xs opacity-90">File nhạc đã có sẵn lời bài hát</div>
+                                    </div>
+                                </button>
+                            )}
+
+                            {selectedMusicForChoice.musicUrl && (
+                                <button
+                                    onClick={() => handleMusicTypeSelection('withoutLyrics')}
+                                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-4 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105 flex items-center justify-center gap-3"
+                                >
+                                    <Music className="w-5 h-5" />
+                                    <div className="text-left">
+                                        <div className="font-bold">Nhạc không lời</div>
+                                        <div className="text-xs opacity-90">File nhạc gốc, không có lời</div>
+                                    </div>
+                                </button>
+                            )}
+
+                            <button
+                                onClick={() => {
+                                    setShowMusicTypeModal(false);
+                                    setSelectedMusicForChoice(null);
+                                }}
+                                className="w-full bg-gray-300 text-gray-800 px-4 py-3 rounded-lg hover:bg-gray-400 transition-all duration-200 font-semibold"
+                            >
+                                Hủy
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {showAudioModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl transform transition-all">
