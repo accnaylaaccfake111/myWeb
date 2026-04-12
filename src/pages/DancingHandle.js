@@ -17,7 +17,7 @@ const DancingHandle = ({ isLoggedIn }) => {
     const tools = [
         {
             id: 1,
-            title: "Chấm Điểm Điệu Múa",
+            title: "Chấm Điểm Động Tác",
             description:
                 "So sánh video múa của bạn với video mẫu và nhận kết quả đánh giá chi tiết, chính xác",
             image: scoreImage,

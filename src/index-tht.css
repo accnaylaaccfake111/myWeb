@@ -1,0 +1,183 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap");
+
+:root {
+  --primary: #e11d48;        /* đỏ đậm, nổi bật */
+  --primary-light: #f43f5e;
+  --primary-dark: #be123c;
+  --secondary: #000000;      /* đen tuyệt đối */
+  --accent: #dc2626;
+  --dark: #000000;
+  --darker: #050505;
+  --light: #ffffff;
+  --gray: #9ca3af;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  background: #000000;
+  color: #f0f0f0;
+  min-height: 100vh;
+}
+
+/* Lớp glass effect nền đen + viền đỏ mờ */
+.glass-effect {
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(225, 29, 72, 0.4);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+}
+
+/* Gradient đen -> đỏ (hoặc đỏ -> đen tùy vị trí) */
+.gradient-bg {
+  background: linear-gradient(135deg, #000000 0%, #e11d48 100%);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #ffffff 0%, #e11d48 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+}
+
+/* Card nền đen tuyền, viền xám rất nhạt, hover đỏ */
+.card-hover {
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+  background: #0a0a0a;
+  border: 1px solid #1f1f1f;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.8);
+  border-color: var(--primary);
+}
+
+/* Nút chính: nền đen chuyển đỏ */
+.btn-primary {
+  background: #000000;
+  color: white;
+  font-weight: 700;
+  padding: 0.85rem 2rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  border: 1px solid var(--primary);
+  letter-spacing: 0.5px;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #e11d48 0%, #000000 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px -5px rgba(225, 29, 72, 0.5);
+  border-color: var(--primary-light);
+}
+
+/* Nút phụ: viền đỏ, chữ đỏ, nền trong suốt */
+.btn-secondary {
+  background: transparent;
+  color: var(--primary-light);
+  border: 2px solid var(--primary);
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: var(--primary);
+  color: #000000;
+  border-color: var(--primary-light);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+}
+
+/* Input field nền đen, viền xám đậm, focus đỏ */
+.input-field {
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #2a2a2a;
+  background-color: #0a0a0a;
+  color: #ffffff;
+  transition: all 0.3s ease;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.3);
+  background-color: #000000;
+}
+
+/* Animation giữ nguyên */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.pulse-animation {
+  animation: pulse 2s infinite;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.float-animation {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Scrollbar đỏ - đen đậm */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-light);
+}
+
+/* Bổ sung style cho text lớn, tiêu đề */
+h1, h2, h3 {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+/* Hiệu ứng gạch chân đỏ cho link nếu cần */
+a {
+  transition: color 0.2s;
+}
+a:hover {
+  color: var(--primary-light);
+}
