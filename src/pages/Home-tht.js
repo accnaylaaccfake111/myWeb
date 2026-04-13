@@ -1,7 +1,6 @@
-// frontend/src/pages/Home.js
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
-import imgBanner from "../assets/img/img_barner7.jpg";
+import imgBanner from "../assets/img/thtbanner.webp";
 import chatbotIcon from "../assets/img/chatbot.png";
 import {
   Music,
@@ -33,33 +32,13 @@ const Home = () => {
     },
     {
       id: 2,
-      icon: <Smile className="w-6 h-6 text-amber-600" />,
+      icon: <Smile className="w-6 h-6 text-red-600" />,
       title: "Ghép mặt vui nhộn",
       description: "Tạo những khoảnh khắc vui vẻ bằng công nghệ ghép mặt AI",
       path: "/face-swap",
-      color: "bg-amber-100",
-      borderColor: "hover:border-amber-300",
-      textColor: "text-amber-600",
-    },
-    {
-      id: 3,
-      icon: <Music className="w-6 h-6 text-blue-600" />,
-      title: "Sáng tác lời bài hát",
-      description: "AI giúp bạn sáng tác lời bài hát theo chủ đề yêu thích",
-      path: "/lyrics-composition",
-      color: "bg-blue-100",
-      borderColor: "hover:border-blue-300",
-      textColor: "text-blue-600",
-    },
-    {
-      id: 4,
-      icon: <Mic className="w-6 h-6 text-green-600" />,
-      title: "Karaoke và chấm điểm",
-      description: "Hát karaoke và nhận đánh giá từ AI về giọng hát của bạn",
-      path: "/karaoke",
-      color: "bg-green-100",
-      borderColor: "hover:border-green-300",
-      textColor: "text-green-600",
+      color: "bg-red-100",
+      borderColor: "hover:border-red-300",
+      textColor: "text-red-600",
     },
   ];
 
@@ -111,6 +90,7 @@ const Home = () => {
       setError("Speech recognition is not supported in this browser.");
     }
   }, []);
+
   useEffect(() => {
     const loadVoices = () => {
       const availableVoices = window.speechSynthesis.getVoices();
@@ -236,9 +216,8 @@ const Home = () => {
           const utterance = new SpeechSynthesisUtterance(responseText);
           if (femaleVoiceRef.current) {
             utterance.voice = femaleVoiceRef.current;
-            utterance.lang = femaleVoiceRef.current.lang; // Đảm bảo lang khớp với voice
+            utterance.lang = femaleVoiceRef.current.lang;
           } else {
-            // Nếu không tìm thấy, quay về cách cũ (trình duyệt tự chọn)
             utterance.lang = "vi-VN";
           }
 
@@ -397,21 +376,21 @@ const Home = () => {
     // Xử lý link
     formattedText = formattedText.replace(
       /\[([^\]]+)\]\(([^)]+)\)/g,
-      '<a href="$2" target="_blank" rel="noopener noreferrer" class="underline text-blue-600 hover:text-blue-800">$1</a>'
+      '<a href="$2" target="_blank" rel="noopener noreferrer" class="underline text-red-600 hover:text-red-800">$1</a>'
     );
 
     formattedText = formattedText.replace(
       /\[(https?:\/\/[^\s\]]+)\]/g,
-      '<a href="$1" target="_blank" rel="noopener noreferrer" class="underline text-blue-600 hover:text-blue-800">$1</a>'
+      '<a href="$1" target="_blank" rel="noopener noreferrer" class="underline text-red-600 hover:text-red-800">$1</a>'
     );
 
     formattedText = formattedText.replace(
       /\[(https?:\/\/[^\s\]]+)\]/g,
       (match, url) => {
         if (url.includes("youtube.com") || url.includes("youtu.be")) {
-          return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="underline text-blue-600 hover:text-blue-800">Xem video YouTube</a>`;
+          return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="underline text-red-600 hover:text-red-800">Xem video YouTube</a>`;
         }
-        return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="underline text-blue-600 hover:text-blue-800">${url}</a>`;
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="underline text-red-600 hover:text-red-800">${url}</a>`;
       }
     );
 
@@ -718,36 +697,30 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-full bg-gradient-to-b from-slate-50 to-white">
+    <div className="min-h-full bg-gradient-to-b from-gray-50 to-gray-100">
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="max-w-[95rem] mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-16">
           <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 leading-tight animate-slide-down">
-              Bảo Tồn Văn Hóa Việt Nam
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight animate-slide-down">
+              KATA
               <br />
-              <span className="bg-gradient-to-r from-red-600 to-amber-600 bg-clip-text text-transparent text-3xl md:text-4xl lg:text-5xl">
-                cùng Trí Tuệ Nhân Tạo
+              <span className="bg-gradient-to-r from-red-700 to-red-800 bg-clip-text text-transparent text-3xl md:text-4xl lg:text-5xl">
+                Công cụ hỗ trợ tập quyền
               </span>
             </h1>
-
-            <p className="text-base md:text-lg text-slate-600 max-w-3xl mx-auto mb-10 leading-relaxed animate-fade-in-delay">
-              Khám phá và trải nghiệm di sản văn hóa phi vật thể qua công nghệ
-              trí tuệ nhân tạo hiện đại. Từ điệu múa truyền thống đến lời ca dân
-              gian, chúng tôi giúp bạn kết nối với văn hóa Việt Nam.
-            </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-delay-2">
               <Link
                 to="/dancing"
-                className="group px-6 py-3 bg-red-600 text-white rounded-full font-medium hover:bg-red-700 transition-all hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 text-base"
+                className="group px-6 py-3 bg-red-700 text-white rounded-full font-medium hover:bg-red-800 transition-all hover:scale-105 shadow-md hover:shadow-lg flex items-center justify-center gap-2 text-base"
               >
                 Bắt đầu ngay
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
                 to="/cultural-history"
-                className="px-6 py-3 bg-white text-slate-700 rounded-full font-medium hover:bg-slate-50 transition-all border-2 border-slate-200 hover:border-slate-300 text-base"
+                className="px-6 py-3 bg-white text-gray-800 rounded-full font-medium hover:bg-gray-50 transition-all border-2 border-gray-200 hover:border-gray-300 text-base"
               >
                 Tìm hiểu thêm
               </Link>
@@ -755,8 +728,8 @@ const Home = () => {
           </div>
 
           {/* Banner Image */}
-          <div className="relative rounded-2xl overflow-hidden shadow-2xl max-w-6xl mx-auto animate-fade-in">
-            <div className="aspect-[21/10] bg-gradient-to-r from-red-100 via-amber-100 to-red-100">
+          <div className="relative rounded-2xl overflow-hidden shadow-xl max-w-6xl mx-auto animate-fade-in">
+            <div className="aspect-[21/10] bg-gradient-to-r from-red-100 to-gray-100">
               <img
                 src={imgBanner}
                 alt="Vietnamese traditional culture"
@@ -771,20 +744,21 @@ const Home = () => {
       <section ref={featuresRef} className="py-12 bg-white">
         <div className="max-w-[95rem] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               Tính năng nổi bật
             </h2>
-            <p className="text-base text-slate-600 max-w-2xl mx-auto">
+            <p className="text-base text-gray-600 max-w-2xl mx-auto">
               Khám phá các công cụ AI hiện đại giúp bạn trải nghiệm và bảo tồn
               văn hóa Việt Nam
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* ĐÃ THAY ĐỔI DÒNG NÀY ĐỂ CĂN GIỮA VÀ THU GỌN VỀ 2 CỘT */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
             {features.map((feature, index) => (
               <div
                 key={feature.id}
-                className={`group relative bg-gradient-to-br from-white to-slate-50 rounded-xl p-6 border border-slate-200 ${
+                className={`group relative bg-white rounded-xl p-6 border border-gray-200 ${
                   feature.borderColor
                 } transition-all hover:shadow-lg flex flex-col h-full ${
                   isVisible ? "animate-feature-in" : "opacity-0 translate-y-8"
@@ -798,10 +772,10 @@ const Home = () => {
                   >
                     {feature.icon}
                   </div>
-                  <h3 className="text-lg font-bold text-slate-900 mb-3 leading-tight">
+                  <h3 className="text-lg font-bold text-gray-900 mb-3 leading-tight">
                     {feature.title}
                   </h3>
-                  <p className="text-sm text-slate-600 mb-4 leading-relaxed flex-grow">
+                  <p className="text-sm text-gray-600 mb-4 leading-relaxed flex-grow">
                     {feature.description}
                   </p>
                   <div className="mt-auto">
@@ -827,19 +801,19 @@ const Home = () => {
       >
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
           <div className="p-4">
-            <div className="text-2xl font-bold text-red-600">
+            <div className="text-2xl font-bold text-red-700">
               {counters.users}+
             </div>
             <div className="text-gray-600 text-sm">Người dùng</div>
           </div>
           <div className="p-4">
-            <div className="text-2xl font-bold text-red-600">
+            <div className="text-2xl font-bold text-red-700">
               {counters.projects}+
             </div>
             <div className="text-gray-600 text-sm">Dự án đã tạo</div>
           </div>
           <div className="p-4">
-            <div className="text-2xl font-bold text-red-600">
+            <div className="text-2xl font-bold text-red-700">
               {counters.satisfaction}%
             </div>
             <div className="text-gray-600 text-sm">Hài lòng</div>
@@ -880,7 +854,7 @@ const Home = () => {
                 setIsVoiceChatOpen(false);
                 stopListening();
               }}
-              className="relative w-16 h-16 bg-red-600 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-700 transition-all hover:scale-110"
+              className="relative w-16 h-16 bg-red-700 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-800 transition-all hover:scale-110"
               style={{
                 boxShadow: "0 0 0 2px white, 0 10px 25px rgba(0,0,0,0.3)",
               }}
@@ -889,12 +863,12 @@ const Home = () => {
             </button>
           )}
 
-          {/* Chatbot Interface - ĐÃ SỬA RESPONSIVE */}
+          {/* Chatbot Interface */}
           {isChatbotOpen && (
             <div className="absolute bottom-full right-0 mb-4 w-[90vw] max-w-[400px] sm:w-[400px]">
               <div className="bg-white rounded-2xl shadow-2xl w-full h-[75vh] max-h-[700px] flex flex-col border border-gray-200 overflow-hidden">
                 {/* Header với nút chuyển sang voice chat */}
-                <div className="bg-gradient-to-r from-red-600 to-amber-600 p-4 text-white">
+                <div className="bg-gradient-to-r from-red-700 to-red-800 p-4 text-white">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
@@ -965,12 +939,12 @@ const Home = () => {
                               className={`max-w-[90%] sm:max-w-[85%] rounded-2xl p-3 ${
                                 message.isBot
                                   ? "bg-white border border-gray-200 rounded-bl-none"
-                                  : "bg-gradient-to-r from-red-600 to-amber-600 text-white rounded-br-none"
+                                  : "bg-gradient-to-r from-red-700 to-red-800 text-white rounded-br-none"
                               }`}
                             >
                               <div
                                 className={`text-sm whitespace-pre-wrap ${
-                                  !message.isBot ? "text-white" : ""
+                                  !message.isBot ? "text-white" : "text-gray-800"
                                 }`}
                                 dangerouslySetInnerHTML={{
                                   __html: message.text,
@@ -1027,7 +1001,7 @@ const Home = () => {
                           onClick={() =>
                             handleSampleQuestionClick("Sắc bùa Phú Lễ là gì?")
                           }
-                          className="inline-flex bg-white border border-red-300 rounded-full px-3 py-1 text-xs text-gray-600 hover:bg-red-50 transition-colors whitespace-nowrap"
+                          className="inline-flex bg-white border border-red-300 rounded-full px-3 py-1 text-xs text-gray-700 hover:bg-red-50 transition-colors whitespace-nowrap"
                         >
                           Sắc bùa Phú Lễ là gì?
                         </button>
@@ -1035,7 +1009,7 @@ const Home = () => {
                           onClick={() =>
                             handleSampleQuestionClick("Lịch sử sắc bùa Phú Lễ?")
                           }
-                          className="inline-flex bg-white border border-red-300 rounded-full px-3 py-1 text-xs text-gray-600 hover:bg-red-50 transition-colors whitespace-nowrap"
+                          className="inline-flex bg-white border border-red-300 rounded-full px-3 py-1 text-xs text-gray-700 hover:bg-red-50 transition-colors whitespace-nowrap"
                         >
                           Lịch sử sắc bùa Phú Lễ?
                         </button>
@@ -1073,7 +1047,7 @@ const Home = () => {
                           isLoadingHistory ||
                           !isLoggedIn
                         }
-                        className="bg-gradient-to-r from-red-600 to-amber-600 text-white rounded-full p-2 hover:from-red-700 hover:to-amber-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                        className="bg-gradient-to-r from-red-700 to-red-800 text-white rounded-full p-2 hover:from-red-800 hover:to-red-900 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
                       >
                         <Send className="w-4 h-4" />
                       </button>
@@ -1105,7 +1079,7 @@ const Home = () => {
           {isVoiceChatOpen && (
             <div className="absolute bottom-full right-0 mb-4 w-[90vw] max-w-[400px] sm:w-[400px]">
               <div className="bg-white rounded-2xl shadow-2xl w-full h-[75vh] max-h-[700px] flex flex-col border border-gray-200 overflow-hidden">
-                <div className="bg-gradient-to-r from-red-600 to-amber-600 p-4 text-white">
+                <div className="bg-gradient-to-r from-red-700 to-red-800 p-4 text-white">
                   <div className="flex items-center justify-between">
                     <button
                       onClick={() => {
@@ -1167,7 +1141,7 @@ const Home = () => {
                     {isRecording || conversationState === "SPEAKING" ? (
                       <button
                         onClick={stopListening}
-                        className="w-16 h-16 sm:w-20 sm:h-20 bg-red-600 text-white rounded-full flex items-center justify-center shadow-2xl hover:shadow-3xl transition-all hover:scale-110 animate-pulse"
+                        className="w-16 h-16 sm:w-20 sm:h-20 bg-red-700 text-white rounded-full flex items-center justify-center shadow-2xl hover:shadow-3xl transition-all hover:scale-110 animate-pulse"
                         style={{
                           boxShadow:
                             "0 0 0 4px white, 0 8px 30px rgba(220, 38, 38, 0.5)",
@@ -1181,7 +1155,7 @@ const Home = () => {
                         disabled={
                           conversationState === "ANALYZING" || !isLoggedIn
                         }
-                        className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-red-600 to-amber-600 text-white rounded-full flex items-center justify-center shadow-2xl hover:shadow-3xl transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-red-700 to-red-800 text-white rounded-full flex items-center justify-center shadow-2xl hover:shadow-3xl transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
                         style={{
                           boxShadow:
                             "0 0 0 4px white, 0 8px 30px rgba(220, 38, 38, 0.3)",
