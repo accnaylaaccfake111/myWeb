@@ -202,7 +202,7 @@ const DanceScoring = ({ isLoggedIn }) => {
 
     // Chuẩn bị FormData
     const formData = new FormData();
-    formData.append("userVideo", videoFile);
+    formData.append("file", videoFile);
     formData.append("referenceVideo", sampleVideoFile);
 
     // Lấy thông tin user để gửi kèm title (tuỳ chọn)

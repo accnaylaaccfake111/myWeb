@@ -494,7 +494,7 @@ const Home = () => {
       setMessages([
         {
           id: 1,
-          text: "Xin chào! Tôi là trợ lý AI của Sắc Bùa Phú Lễ. Cuộc trò chuyện mới đã bắt đầu. Tôi có thể giúp gì cho bạn?",
+          text: "Xin chào! Tôi là trợ lý AI KATA. Cuộc trò chuyện mới đã bắt đầu. Tôi có thể giúp gì cho bạn?",
           isBot: true,
           timestamp: new Date(),
         },

@@ -192,7 +192,7 @@ const DanceSimulation = ({ isLoggedIn }) => {
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/video-3d/process-single-video-stream`,
+        `${API_BASE_URL}/api/video-3d/process-video-stream`,
         {
           method: "POST",
           headers: getHeaders(), // Sử dụng Header có Auth
