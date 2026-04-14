@@ -436,7 +436,7 @@ const Home = () => {
         setMessages([
           {
             id: 1,
-            text: "Xin chào! Tôi là trợ lý AI của Sắc Bùa Phú Lễ. Tôi có thể giúp gì cho bạn?",
+            text: "Xin chào! Tôi là trợ lý AI KATA. Tôi có thể giúp gì cho bạn?",
             isBot: true,
             timestamp: new Date(),
           },
@@ -447,7 +447,7 @@ const Home = () => {
       setMessages([
         {
           id: 1,
-          text: "Xin chào! Tôi là trợ lý AI của Sắc Bùa Phú Lễ. Tôi có thể giúp gì cho bạn?",
+          text: "Xin chào! Tôi là trợ lý AI KATA. Tôi có thể giúp gì cho bạn?",
           isBot: true,
           timestamp: new Date(),
         },
@@ -991,9 +991,9 @@ const Home = () => {
                   <div ref={messagesEndRef} />
                 </div>
 
-                {/* Container cho câu hỏi mẫu và input */}
+                Container cho câu hỏi mẫu và input
                 <div className="bg-white">
-                  {/* Câu hỏi mẫu */}
+                  {/* Câu hỏi mẫu *
                   {!isLoadingHistory && isFirstTimeChat() && isLoggedIn && (
                     <div className="p-3 sm:p-4 pb-2">
                       <div className="flex flex-wrap gap-2">
@@ -1003,7 +1003,7 @@ const Home = () => {
                           }
                           className="inline-flex bg-white border border-red-300 rounded-full px-3 py-1 text-xs text-gray-700 hover:bg-red-50 transition-colors whitespace-nowrap"
                         >
-                          Sắc bùa Phú Lễ là gì?
+                          KARATE là gì?
                         </button>
                         <button
                           onClick={() =>
