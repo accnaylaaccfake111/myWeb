@@ -19,7 +19,7 @@ const DancingHandle = ({ isLoggedIn }) => {
             id: 1,
             title: "Chấm Điểm Động Tác",
             description:
-                "So sánh video múa của bạn với video mẫu và nhận kết quả đánh giá chi tiết, chính xác",
+                "So sánh video động tác của bạn với video mẫu và nhận kết quả đánh giá chi tiết, chính xác",
             image: scoreImage,
             path: "/dancing-scoring",
             icon: Star,
@@ -77,7 +77,7 @@ const DancingHandle = ({ isLoggedIn }) => {
                             <Sparkles className="h-6 w-6 sm:h-8 sm:w-8 text-red-700" />
                         </div>
                         <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 py-4 bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent animate-pulse">
-                            Công Cụ Hỗ Trợ Múa
+                            Công Cụ Hỗ Tập Quyền
                         </h1>
                     </div>
                     <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-600 px-4 py-2 rounded-full text-sm font-medium mb-6 border border-blue-100">
